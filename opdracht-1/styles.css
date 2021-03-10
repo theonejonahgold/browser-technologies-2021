@@ -1,0 +1,108 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu,Cantarell, "Helvetica Neue", sans-serif;
+  background: #cdcdcd;
+  color: #262626;
+}
+
+header, section, footer {
+  height: 80vh;
+  display: grid;
+  align-content: center;
+}
+
+article {
+  box-sizing: content-box;
+  width: min(80rem, 90%);
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+hgroup {
+  margin-bottom: 1rem;
+}
+
+h1, h2, h3 {
+  line-height: 1.125em;
+  margin-bottom: 1rem;
+}
+
+p, li {
+  margin: 0;
+  line-height: 1.5em;
+}
+
+a:not(:visited) {
+  color: #262626;
+}
+
+a:visited:not(:hover):not(:focus) {
+  color: #ea0b4d;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+div > section {
+  grid-template-columns: 0.6fr auto; /* 50rem 30rem */
+  grid-gap: 1rem;
+}
+
+div {
+  grid-column: 1 / span 1;
+}
+
+div + img {
+  grid-column: 2 / span 1;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.image-container {
+  width: calc(min(80rem, 90%) * 0.4);
+  height: calc(min(80rem, 90%) * 0.4);
+}
+
+.image-container img {
+  object-fit: contain;
+}
+
+.stick {
+  position: sticky;
+  top: calc(50% - calc(min(80rem, 90%) * 0.4));
+  left: calc(100% - calc(min(80rem, 90%) * 0.4));
+}
+
+.hidden {
+  display: none;
+}
+
+.speakerJsFile .bg-color-1, .speakerJsFile .bg-color-2, .speakerJsFile .speaker-color-beat {
+  transition: all 0.5s ease;
+}
+
+.speakerJsFile .mic-button, .speakerJsFile .mic-coord, .speakerJsFile .mic-element, .speakerJsFile .mic-skeleton {
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+
+.speakerJsFile .bg-color-1, .speakerJsFile .bg-color-2, .speakerHtml .bg-color-1, .speakerHtml .bg-color-2 {
+  fill: #cdcdcd;
+}
+
+.speakerJsFile .speaker-color-beat, .speakerHtml .speaker-color-beat {
+  fill: #393939;
+}
+
+.speakerHtml .bg-color-1, .speakerHtml .bg-color-2, .speakerHtml .speaker-color-beat {
+  fill-opacity: 0;
+}
+
+.speakerJs .mic-button, .speakerJs .mic-coord, .speakerJs .mic-element, .speakerJs .mic-skeleton {
+  opacity: 1;
+}
