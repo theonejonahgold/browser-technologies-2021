@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/gofiber/fiber/v2 v2.6.0
+	github.com/gofiber/template v1.6.7
 	github.com/joho/godotenv v1.3.0
 	github.com/klauspost/compress v1.11.12 // indirect
 	github.com/matthewhartstonge/argon2 v0.1.4 // indirect
