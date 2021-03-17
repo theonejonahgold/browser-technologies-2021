@@ -1,4 +1,4 @@
-# Browser Technologies @cmda-minor-web 20-21
+<!-- # Browser Technologies @cmda-minor-web 20-21
 
 //Robuuste, toegankelijke websites ontwerpen en maken …
 
