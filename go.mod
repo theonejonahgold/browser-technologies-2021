@@ -1,3 +1,4 @@
+// +heroku goVersion 1.16
 module bt
 
 go 1.16
