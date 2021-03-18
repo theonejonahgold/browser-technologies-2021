@@ -1,0 +1,36 @@
+<h1>Session: {{session.name}}</h1>
+
+<section>
+  <h2>Questions ({{len questions}})</h2>
+  <a href="/app/session/{{objectid session.iD}}/question">Add question</a>
+
+  <ul>
+    {{#each questions as |question|}}
+    <li>
+      <h3>
+        {{question.title}}
+        <a href="/app/session/{{objectid question.session}}/question/{{objectid question.iD}}">Edit</a>
+      </h3>
+      <details>
+        {{#if (len question.answers)}}
+        <summary>{{len question.answers}} answers</summary>
+        {{else}}
+        <summary>0 answers</summary>
+        {{/if}}
+        {{#each question.answers as |answer|}}
+        <ul>
+          <li>
+            {{answer.title}}
+            <form
+              action="/app/session/{{objectid question.session}}/question/{{objectid question.iD}}/{{objectid answer.iD}}"
+              method="POST">
+              <button>Delete</button>
+            </form>
+          </li>
+        </ul>
+        {{/each}}
+      </details>
+    </li>
+    {{/each}}
+  </ul>
+</section>

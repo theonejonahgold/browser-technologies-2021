@@ -1,0 +1,17 @@
+<form action="/user/register" method="POST">
+  <label>
+    Username
+    <input type="text" name="username">
+    {{#if errors.username}}
+    <p>{{errors.username}}</p>
+    {{/if}}
+  </label>
+  <label>
+    Password
+    <input type="password" name="password">
+    {{#if errors.password}}
+    <p>{{errors.password}}</p>
+    {{/if}}
+  </label>
+  <button>Register</button>
+</form>
