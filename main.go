@@ -23,7 +23,6 @@ func main() {
 	if err != nil && !strings.Contains(err.Error(), "no such file or directory") {
 		log.Fatal(err)
 	}
-	fmt.Println(err)
 	err = db.Connect()
 	if err != nil {
 		log.Fatal(err)
