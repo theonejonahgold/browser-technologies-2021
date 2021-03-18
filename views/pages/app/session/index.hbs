@@ -1,15 +1,20 @@
 <h1>Session: {{session.name}}</h1>
+<a href="/app">Back to overview</a>
+<label>Code: <input type="text" readonly value={{session.code}}></label>
 
 <section>
-  <h2>Questions ({{len questions}})</h2>
-  <a href="/app/session/{{objectid session.iD}}/question">Add question</a>
+  <h2>Questions ({{len session.questions}})</h2>
+  <a href="/app/session/{{objectid session.iD}}/question/create">Add question</a>
 
-  <ul>
-    {{#each questions as |question|}}
+  <ol>
+    {{#each session.questions as |question|}}
     <li>
       <h3>
         {{question.title}}
-        <a href="/app/session/{{objectid question.session}}/question/{{objectid question.iD}}">Edit</a>
+        <a href="/app/session/{{objectid session.iD}}/question/edit/{{objectid question.iD}}">Edit question</a>
+        <form action="/app/session/{{objectid session.iD}}/question/delete/{{objectid question.iD}}" method="POST">
+          <button>Delete</button>
+        </form>
       </h3>
       <details>
         {{#if (len question.answers)}}
@@ -17,20 +22,24 @@
         {{else}}
         <summary>0 answers</summary>
         {{/if}}
-        {{#each question.answers as |answer|}}
-        <ul>
+        <ol>
+          {{#each question.answers as |answer|}}
           <li>
             {{answer.title}}
-            <form
-              action="/app/session/{{objectid question.session}}/question/{{objectid question.iD}}/{{objectid answer.iD}}"
-              method="POST">
+            <form action="/app/session/{{objectid session.iD}}/answer/delete/{{objectid answer.iD}}" method="POST">
               <button>Delete</button>
             </form>
           </li>
-        </ul>
-        {{/each}}
+          {{/each}}
+        </ol>
       </details>
     </li>
     {{/each}}
-  </ul>
+  </ol>
+</section>
+<section>
+  <h2>Danger zone</h2>
+  <form action="/app/session/delete/{{objectid session.iD}}" method="POST">
+    <button>Delete</button>
+  </form>
 </section>

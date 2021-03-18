@@ -4,7 +4,6 @@ import (
 	"bt/db"
 	"bt/db/models"
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -19,15 +18,29 @@ var store *session.Store
 
 func NewRouter(app *fiber.App, sessStore *session.Store) {
 	store = sessStore
-	router := app.Group("/user")
-	router.Get("/login", loginPage)
-	router.Post("/login", loginUser)
-	router.Get("/register", registerPage)
-	router.Post("/register", registerUser)
+	app.Get("/login", loginPage)
+	app.Post("/login", loginUser)
+	app.Get("/register", registerPage)
+	app.Post("/register", registerUser)
 }
 
 func loginPage(c *fiber.Ctx) error {
-	return c.Render("pages/login", nil, "layouts/main")
+	err := c.Query("error", "")
+	errs := struct {
+		Username string
+		Password string
+	}{
+		Username: "",
+		Password: "",
+	}
+	if strings.Contains(err, "password") {
+		if strings.Contains(err, "invalid") {
+			errs.Password = "Password is invalid"
+		}
+	}
+	return c.Render("pages/login", fiber.Map{
+		"errors": errs,
+	}, "layouts/main")
 }
 
 func loginUser(c *fiber.Ctx) error {
@@ -40,9 +53,11 @@ func loginUser(c *fiber.Ctx) error {
 	defer stop()
 	cl := db.Database().Collection("users")
 	var u models.User
-	err = cl.FindOne(ctx, bson.M{
-		"username": ui.Username,
-	}).Decode(&u)
+	err = cl.
+		FindOne(ctx, bson.M{
+			"username": ui.Username,
+		}).
+		Decode(&u)
 	if err != nil {
 		return err
 	}
@@ -51,7 +66,7 @@ func loginUser(c *fiber.Ctx) error {
 		return err
 	}
 	if !ok {
-		return fmt.Errorf("password supplied is invalid")
+		return c.Redirect("/login?error=password_invalid")
 	}
 	sess, err := store.Get(c)
 	if err != nil {
@@ -93,7 +108,7 @@ func registerUser(c *fiber.Ctx) error {
 		"username": u.Username,
 	}).DecodeBytes()
 	if err != mongo.ErrNoDocuments {
-		return c.Redirect("/user/register?error=username_exists")
+		return c.Redirect("/register?error=username_exists")
 	}
 	stop()
 	enc, err := models.HashPassword([]byte(u.Password))
@@ -108,7 +123,7 @@ func registerUser(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Redirect("/user/login")
+	return c.Redirect("/login")
 }
 
 func createCtx(timeout ...int) (context.Context, context.CancelFunc) {

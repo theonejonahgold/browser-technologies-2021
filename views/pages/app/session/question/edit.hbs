@@ -1,17 +1,20 @@
 <h1>Editing: {{question.title}}</h1>
-<a href="/app/session/{{objectid question.session}}">Back to session</a>
+<a href="/app/session/{{objectid sid}}">Back to session</a>
 
-<form action="/app/session/{{objectid question.session}}/question/{{objectid question.iD}}" method="POST">
-  <label>Title <input type="text" name="title" value="{{question.title}}"></label>
-  {{#each question.answers}}
-  <label>
-    Answer {{addOne @index}}:
-    <input type="text" name="answer-{{@index}}" value="{{this.title}}">
-  </label>
-  {{/each}}
-  <label>
-    New answer
-    <input type="text" name="answer">
-  </label>
+<form action="/app/session/{{objectid sid}}/question/edit/{{objectid question.iD}}" method="POST">
+  <label>Question title <input type="text" name="title" value="{{question.title}}"></label>
+  <fieldset>
+    <legend>Answers</legend>
+    {{#each question.answers}}
+    <label>
+      Answer {{addOne @index}}:
+      <input type="text" name="answer-{{@index}}" value="{{this.title}}">
+    </label>
+    {{/each}}
+    <label>
+      New answer
+      <input type="text" name="answer">
+    </label>
+  </fieldset>
   <button>Save</button>
 </form>

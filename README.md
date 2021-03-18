@@ -4,24 +4,26 @@ A kahoot clone, completely progressively enhanced.
 
 ![Picture of flowchart](docs/flowchart.png)
 
+## Features
+
 - [x] Sessie aanmaken
-	- [ ] Sessie delen met link
+	- [x] Sessie delen met link
 	- [x] Vragen toevoegen aan sessie
-	- [ ] Sessie sluiten
+	- [ ] Sessie starten
+	- [ ] Doorgaan naar volgende vraag
+	- [ ] Kiezen om antwoorden gelijk te tonen of nadat iedereen heeft geantwoord
 - [x] Vraag aanmaken
 	- [ ] Vraag publiceren
-	- [ ] Vraag verwijderen
+	- [x] Vraag verwijderen
 	- [ ] Vraag sluiten
 	- [ ] Positie veranderen
-	- [ ] Kiezen om antwoorden gelijk te tonen of nadat iedereen heeft geantwoord
 - [x] Antwoord aanmaken
-	- [ ] Antwoord publiceren
 	- [x] Antwoord verwijderen
 - [ ] Profielpagina
 - [ ] Meedoen met sessie
 	- [ ] Antwoord geven op vragen
 	- [ ] Resultaten met datavisualisatie
-- [ ] Update krijgen als vraag is gepubliceerd
+	- [ ] Update krijgen als vraag is gepubliceerd
 
 
 <!-- # Browser Technologies @cmda-minor-web 20-21

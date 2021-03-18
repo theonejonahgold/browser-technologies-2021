@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -19,9 +20,10 @@ import (
 
 func main() {
 	err := godotenv.Load(".env")
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "no such file or directory") {
 		log.Fatal(err)
 	}
+	fmt.Println(err)
 	err = db.Connect()
 	if err != nil {
 		log.Fatal(err)
