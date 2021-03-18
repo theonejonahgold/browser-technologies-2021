@@ -1,3 +1,9 @@
+# Groothoot
+
+A kahoot clone, completely progressively enhanced.
+
+![Picture of flowchart](docs/flowchart.png)
+
 <!-- # Browser Technologies @cmda-minor-web 20-21
 
 //Robuuste, toegankelijke websites ontwerpen en maken …
