@@ -1,0 +1,5 @@
+<h1>Results for: {{question.title}}</h1>
+{{#each question.answers}}
+{{> partials/answer-result}}
+{{/each}}
+<a href="/app/host/next-question">Go to next question</a>

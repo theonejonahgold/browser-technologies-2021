@@ -1,0 +1,18 @@
+{{#unless answered}}
+<h1>{{question.title}}</h1>
+<form action="/app/join/answer" method="POST">
+  {{#each question.answers as |answer|}}
+  <label>
+    {{answer.title}}
+    <input type="radio" name="answer" value="{{objectid answer.iD}}">
+  </label>
+  {{/each}}
+  <input type="hidden" name="userid" value="{{objectid user.iD}}">
+  <button>Send in answer</button>
+</form>
+{{else}}
+<meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}">
+<h1>{{question.title}}</h1>
+<p>Your answer was: {{answer.title}}</p>
+<p>Waiting for results to come in...</p>
+{{/unless}}

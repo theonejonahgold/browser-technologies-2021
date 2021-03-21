@@ -1,7 +1,7 @@
 <h1>Editing: {{question.title}}</h1>
-<a href="/app/session/{{objectid sid}}">Back to session</a>
+<a href="/app/quiz/{{objectid sid}}">Back to session</a>
 
-<form action="/app/session/{{objectid sid}}/question/edit/{{objectid question.iD}}" method="POST">
+<form action="/app/quiz/{{objectid sid}}/question/edit/{{objectid question.iD}}" method="POST">
   <label>Question title <input type="text" name="title" value="{{question.title}}"></label>
   <fieldset>
     <legend>Answers</legend>

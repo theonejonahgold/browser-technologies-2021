@@ -1,0 +1,7 @@
+<h1>Results for {{session.name}}</h1>
+{{#each session.questions as |question|}}
+<h2>{{question.title}}</h2>
+{{#each question.answers}}
+{{> partials/answer-result}}
+{{/each}}
+{{/each}}

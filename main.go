@@ -2,6 +2,7 @@ package main
 
 import (
 	"bt/db"
+	"bt/db/models"
 	"bt/routers/appRouter"
 	"bt/routers/userRouter"
 	"fmt"
@@ -34,11 +35,11 @@ func main() {
 	}
 	engine := handlebars.New("views", ".hbs")
 	engine.AddFunc("objectid", func(id interface{}) string {
-		objid, ok := id.(primitive.ObjectID)
+		objID, ok := id.(primitive.ObjectID)
 		if !ok {
 			return "No valid id passed"
 		}
-		return objid.Hex()
+		return objID.Hex()
 	})
 	engine.AddFunc("len", func(iter interface{}) int {
 		switch reflect.TypeOf(iter).Kind() {
@@ -54,6 +55,14 @@ func main() {
 	})
 	engine.AddFunc("addOne", func(num int) int {
 		return num + 1
+	})
+	engine.AddFunc("sessionState", func(state models.SessionState) string {
+		switch state {
+		case models.Creating:
+			return "Open up session for participants"
+		default:
+			return "Continue session"
+		}
 	})
 	app := fiber.New(fiber.Config{
 		Views: engine,

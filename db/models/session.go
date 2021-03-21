@@ -7,26 +7,35 @@ import (
 )
 
 const (
-	SessionStateWaiting = iota
-	SessionStateQuestionStarting
-	SessionStateQuestionStarted
-	SessionStateQuestionResults
-	SessionStateFinished
+	Creating SessionState = iota
+	Waiting
+	QuestionCountdown
+	QuestionOpen
+	QuestionClosed
+	Finished
 )
 
+type SessionState int8
+
 type Session struct {
-	ID              primitive.ObjectID   `json:"_id" bson:"_id"`
-	Name            string               `json:"name" bson:"name"`
-	Owner           primitive.ObjectID   `json:"owner" bson:"owner"`
-	QuestionTimer   time.Duration        `json:"question-timer" bson:"questionTimer"`
-	Participants    []primitive.ObjectID `json:"participants" bson:"participants"`
-	Questions       []*Question          `json:"questions" bson:"questions"`
-	Code            string               `json:"code" bson:"code"`
-	State           int                  `json:"state" bson:"state"`
-	CurrentQuestion int                  `json:"currentQuestion" bson:"currentQuestion"`
+	ID              primitive.ObjectID `json:"_id" bson:"_id"`
+	Name            string             `json:"name" bson:"name"`
+	Owner           primitive.ObjectID `json:"owner" bson:"owner"`
+	QuestionTimer   time.Duration      `json:"question-timer" bson:"questionTimer"`
+	Participants    []*Participant     `json:"participants" bson:"participants"`
+	Questions       []*Question        `json:"questions" bson:"questions"`
+	Code            string             `json:"code" bson:"code"`
+	State           SessionState       `json:"state" bson:"state"`
+	CurrentQuestion primitive.ObjectID `json:"current" bson:"current"`
 }
 
 type SessionInput struct {
 	Name          string        `json:"name" bson:"name"`
 	QuestionTimer time.Duration `json:"question-timer" bson:"questionTimer"`
+}
+
+type Participant struct {
+	ID      primitive.ObjectID `json:"_id" bson:"_id"`
+	User    primitive.ObjectID `json:"user" bson:"user"`
+	Strikes int                `json:"strikes" bson:"strikes"`
 }

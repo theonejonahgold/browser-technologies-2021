@@ -1,18 +1,49 @@
 <h1>{{user.username}}'s Goldhoot</h1>
 
-<a href="/app/session/create">Create session</a>
-<form action="/app/session/join" method="GET">
-  <label>Join session</label>
+<a href="/app/quiz/create">Create quiz</a>
+<form action="/app/join" method="GET">
+  <label>Join quiz</label>
   <input type="text" name="session">
   <button>Join</button>
+  {{#if errors.session}}
+  <p>{{errors.session}}</p>
+  {{/if}}
 </form>
 
 <section>
-  <h2>Previous sessions</h2>
+  <h2>Previously joined quizzes</h2>
   <ul>
-    {{#each sessions}}
+    {{#each joinedSessions}}
     <li>
-      <a href="/app/session/{{objectid this.iD}}">{{this.name}}</a>
+      <a href="/app/quiz/{{objectid this.iD}}/results">{{this.name}}</a>
+    </li>
+    {{/each}}
+  </ul>
+</section>
+
+<section>
+  <h2>Your poll quizzes</h2>
+  <h3>Ongoing</h3>
+  <ul>
+    {{#each ongoingSessions}}
+    <li>
+      <a href="/app/quiz/{{objectid this.iD}}">{{this.name}}</a>
+    </li>
+    {{/each}}
+  </ul>
+  <h3>Drafts</h3>
+  <ul>
+    {{#each draftSessions}}
+    <li>
+      <a href="/app/quiz/{{objectid this.iD}}">{{this.name}}</a>
+    </li>
+    {{/each}}
+  </ul>
+  <h3>Finished</h3>
+  <ul>
+    {{#each finishedSessions}}
+    <li>
+      <a href="/app/quiz/{{objectid this.iD}}">{{this.name}}</a>
     </li>
     {{/each}}
   </ul>
