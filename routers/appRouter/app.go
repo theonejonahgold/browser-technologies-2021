@@ -3,20 +3,21 @@ package appRouter
 import (
 	"bt/db"
 	"bt/db/models"
+	"bt/isosession"
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var store *session.Store
+var store *isosession.IsoStore
 
-func NewRouter(app *fiber.App, sessStore *session.Store) {
+func NewRouter(app *fiber.App, sessStore *isosession.IsoStore) {
 	store = sessStore
 	router := app.Group("/app")
 	router.Use(isLoggedIn)
@@ -48,15 +49,17 @@ func NewRouter(app *fiber.App, sessStore *session.Store) {
 }
 
 func isLoggedIn(c *fiber.Ctx) error {
-	sess, err := store.Get(c)
+	sess, uuidSess, err := store.Get(c)
 	if err != nil {
 		return err
 	}
 	user := sess.Get("user")
 	if user == nil {
+		user = uuidSess.Get("user")
+	}
+	if user == nil {
 		return c.Redirect("/login")
 	}
-	sess.Save()
 	return c.Next()
 }
 
@@ -82,8 +85,12 @@ func appPage(c *fiber.Ctx) error {
 			}
 		}
 	}
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	var u models.User
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	ctx, stop := createCtx(20)
 	cur, err := db.
 		Database().
@@ -126,18 +133,25 @@ func appPage(c *fiber.Ctx) error {
 		"joinedSessions":   js,
 		"user":             u,
 		"errors":           errs,
+		"sessid":           uuidSess.ID(),
 	}, "layouts/app")
 }
 
 func sessionResults(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
+	sess, uuidSess, _ := store.Get(c)
+	var u models.User
 	defer sess.Save()
 	sess.Delete("current-joining")
 	sess.Delete("current-hosting")
-	u := sess.Get("user").(models.User)
+	u, ok := sess.Get("user").(models.User)
+	uuidSess.Delete("current-joining")
+	uuidSess.Delete("current-hosting")
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	sID, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
-		return c.Redirect("/app?error=session_noexist")
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist&sessid=%v", uuidSess.ID()))
 	}
 	var s models.Session
 	ctx, stop := createCtx()
@@ -153,13 +167,14 @@ func sessionResults(c *fiber.Ctx) error {
 		Decode(&s); err != nil {
 		stop()
 		if err == mongo.ErrNoDocuments {
-			return c.Redirect("/app?error=session_noexist")
+			return c.Redirect(fmt.Sprintf("/app?error=session_noexist&sessid=%v", uuidSess.ID()))
 		}
 		return err
 	}
 	stop()
 	return c.Render("pages/app/session/results", fiber.Map{
 		"session": s,
+		"sessid":  uuidSess.ID(),
 	}, "layouts/app")
 }
 

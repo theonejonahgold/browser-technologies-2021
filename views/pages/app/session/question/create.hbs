@@ -1,6 +1,7 @@
 <h1>New question for {{session.name}}</h1>
 
 <form action="/app/quiz/{{objectid session.iD}}/question/create" method="POST">
+  <input type="hidden" name="sessid" value="{{sessid}}">
   <label>
     Title
     <input type="text" name="title">

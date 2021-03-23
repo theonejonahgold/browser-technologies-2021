@@ -3,17 +3,17 @@ package main
 import (
 	"bt/db"
 	"bt/db/models"
+	"bt/isosession"
 	"bt/routers/appRouter"
 	"bt/routers/userRouter"
-	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/template/handlebars"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -67,15 +67,13 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
-	sessStore := session.New()
+	app.Use(compress.New(compress.Config{Level: compress.LevelBestCompression}))
 	app.Use(logger.New(logger.ConfigDefault))
+	sessStore := isosession.NewStore()
 	userRouter.NewRouter(app, sessStore)
 	appRouter.NewRouter(app, sessStore)
 	app.Get("/", index)
 	log.Fatal(app.Listen(":" + port))
-	if err := recover(); err != nil {
-		fmt.Println(err)
-	}
 }
 
 func index(c *fiber.Ctx) error {

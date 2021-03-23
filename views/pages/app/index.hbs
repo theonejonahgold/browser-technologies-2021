@@ -1,7 +1,8 @@
 <h1>{{user.username}}'s Goldhoot</h1>
 
-<a href="/app/quiz/create">Create quiz</a>
+<a href="/app/quiz/create?sessid={{sessid}}">Create quiz</a>
 <form action="/app/join" method="GET">
+  <input type="hidden" name="sessid" value="{{sessid}}">
   <label>Join quiz</label>
   <input type="text" name="session">
   <button>Join</button>
@@ -15,7 +16,7 @@
   <ul>
     {{#each joinedSessions}}
     <li>
-      <a href="/app/quiz/{{objectid this.iD}}/results">{{this.name}}</a>
+      <a href="/app/quiz/{{objectid this.iD}}/results?sessid={{sessid}}">{{this.name}}</a>
     </li>
     {{/each}}
   </ul>
@@ -27,7 +28,7 @@
   <ul>
     {{#each ongoingSessions}}
     <li>
-      <a href="/app/quiz/{{objectid this.iD}}">{{this.name}}</a>
+      <a href="/app/quiz/{{objectid this.iD}}?sessid={{sessid}}">{{this.name}}</a>
     </li>
     {{/each}}
   </ul>
@@ -35,7 +36,7 @@
   <ul>
     {{#each draftSessions}}
     <li>
-      <a href="/app/quiz/{{objectid this.iD}}">{{this.name}}</a>
+      <a href="/app/quiz/{{objectid this.iD}}?sessid={{sessid}}">{{this.name}}</a>
     </li>
     {{/each}}
   </ul>
@@ -43,7 +44,7 @@
   <ul>
     {{#each finishedSessions}}
     <li>
-      <a href="/app/quiz/{{objectid this.iD}}">{{this.name}}</a>
+      <a href="/app/quiz/{{objectid this.iD}}?sessid={{sessid}}">{{this.name}}</a>
     </li>
     {{/each}}
   </ul>

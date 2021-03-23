@@ -15,7 +15,10 @@ import (
 )
 
 func createSessionPage(c *fiber.Ctx) error {
-	return c.Render("pages/app/session/create", nil, "layouts/app")
+	_, uuidSess, _ := store.Get(c)
+	return c.Render("pages/app/session/create", fiber.Map{
+		"sessid": uuidSess.ID(),
+	}, "layouts/app")
 }
 
 func saveSessionName(c *fiber.Ctx) error {
@@ -23,14 +26,17 @@ func saveSessionName(c *fiber.Ctx) error {
 	if err := c.BodyParser(&si); err != nil {
 		return err
 	}
-	sess, err := store.Get(c)
+	sess, uuidSess, err := store.Get(c)
 	if err != nil {
 		return err
 	}
 	defer sess.Save()
 	u, ok := sess.Get("user").(models.User)
 	if !ok {
-		return c.Redirect("/login")
+		u, ok = uuidSess.Get("user").(models.User)
+		if !ok {
+			return c.Redirect(fmt.Sprintf("/login?sessid=%v", uuidSess.ID()))
+		}
 	}
 	cl := db.Database().Collection("sessions")
 	id := primitive.NewObjectID()
@@ -49,7 +55,7 @@ func saveSessionName(c *fiber.Ctx) error {
 	}); err != nil {
 		return err
 	}
-	return c.Redirect(fmt.Sprintf("/app/quiz/%v", id.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", id.Hex(), uuidSess.ID()))
 }
 
 func deleteSession(c *fiber.Ctx) error {
@@ -58,8 +64,11 @@ func deleteSession(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	ctx, stop := createCtx()
 	defer stop()
 	if db.Database().Collection("sessions").FindOneAndDelete(ctx, bson.M{
@@ -68,13 +77,16 @@ func deleteSession(c *fiber.Ctx) error {
 	}).Err(); err != nil {
 		return err
 	}
-	return c.Redirect("/app")
+	return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
 }
 
 func sessionPage(c *fiber.Ctx) error {
 	id := c.Params("id")
-	sess, _ := store.Get(c)
-	u, _ := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
@@ -90,14 +102,15 @@ func sessionPage(c *fiber.Ctx) error {
 	}
 	stop()
 	if s.State == models.Finished {
-		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results", s.ID.Hex()))
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	}
 	if s.State != models.Creating {
-		return c.Redirect(fmt.Sprintf("/app/host/%v", s.ID.Hex()))
+		return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	}
 	return c.Render("pages/app/session/index", fiber.Map{
 		"session": s,
 		"id":      objID.Hex(),
+		"sessid":  uuidSess.ID(),
 	}, "layouts/app")
 }
 
@@ -107,13 +120,16 @@ func newQuestionPage(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	sess, err := store.Get(c)
+	sess, uuidSess, err := store.Get(c)
 	if err != nil {
 		return err
 	}
 	u, ok := sess.Get("user").(models.User)
 	if !ok {
-		return c.Redirect("/login")
+		u, ok = uuidSess.Get("user").(models.User)
+		if !ok {
+			return c.Redirect("/login")
+		}
 	}
 	ctx, stop := createCtx()
 	defer stop()
@@ -123,12 +139,13 @@ func newQuestionPage(c *fiber.Ctx) error {
 		Collection("sessions").
 		FindOne(ctx, bson.M{"owner": u.ID, "_id": objID}).
 		Decode(&s); err == mongo.ErrNoDocuments {
-		return c.Redirect("/app/sesssion/create")
+		return c.Redirect(fmt.Sprintf("/app/sesssion/create?sessid=%v", uuidSess.ID()))
 	} else if err != nil {
 		return err
 	}
 	return c.Render("pages/app/session/question/create", fiber.Map{
 		"session": s,
+		"sessid":  uuidSess.ID(),
 	}, "layouts/app")
 }
 
@@ -148,8 +165,11 @@ func saveNewQuestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	ctx, stop := createCtx()
 	defer stop()
 	var s models.Session
@@ -167,44 +187,48 @@ func saveNewQuestion(c *fiber.Ctx) error {
 		Decode(&s); err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
-	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v", objID.Hex(), q.ID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", objID.Hex(), q.ID.Hex(), uuidSess.ID()))
 }
 
 func editQuestionPage(c *fiber.Ctx) error {
 	sid := c.Params("id")
 	qid := c.Params("qid")
-	sobjID, err := primitive.ObjectIDFromHex(sid)
+	sObjID, err := primitive.ObjectIDFromHex(sid)
 	if err != nil {
 		return err
 	}
-	qobjID, err := primitive.ObjectIDFromHex(qid)
+	qObjID, err := primitive.ObjectIDFromHex(qid)
 	if err != nil {
 		return err
 	}
 	ctx, stop := createCtx()
 	defer stop()
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	var s models.Session
 	if err := db.
 		Database().
 		Collection("sessions").
 		FindOne(ctx, bson.M{
 			"owner": u.ID,
-			"_id":   sobjID,
+			"_id":   sObjID,
 		}).
 		Decode(&s); err != nil {
 		return err
 	}
 	var q models.Question
 	for _, v := range s.Questions {
-		if v.ID == qobjID {
+		if v.ID == qObjID {
 			q = *v
 		}
 	}
 	return c.Render("pages/app/session/question/edit", fiber.Map{
 		"question": q,
 		"sid":      s.ID,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/app")
 }
 
@@ -215,7 +239,7 @@ func editQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	qid := c.Params("qid")
-	qobjID, err := primitive.ObjectIDFromHex(qid)
+	qObjID, err := primitive.ObjectIDFromHex(qid)
 	if err != nil {
 		return err
 	}
@@ -223,8 +247,11 @@ func editQuestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	cl := db.Database().Collection("sessions")
 	var s models.Session
 	ctx, stop := createCtx()
@@ -237,7 +264,7 @@ func editQuestion(c *fiber.Ctx) error {
 	stop()
 	var q *models.Question
 	for _, v := range s.Questions {
-		if v.ID.Hex() == qobjID.Hex() {
+		if v.ID.Hex() == qObjID.Hex() {
 			q = v
 			break
 		}
@@ -269,7 +296,7 @@ func editQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v", s.ID.Hex(), q.ID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", s.ID.Hex(), q.ID.Hex(), uuidSess.ID()))
 }
 
 func deleteQuestion(c *fiber.Ctx) error {
@@ -279,12 +306,15 @@ func deleteQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	qid := c.Params("qid")
-	qobjID, err := primitive.ObjectIDFromHex(qid)
+	qObjID, err := primitive.ObjectIDFromHex(qid)
 	if err != nil {
 		return err
 	}
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	ctx, stop := createCtx()
 	if err := db.
 		Database().
@@ -292,10 +322,10 @@ func deleteQuestion(c *fiber.Ctx) error {
 		FindOneAndUpdate(ctx, bson.M{
 			"_id":           objID,
 			"owner":         u.ID,
-			"questions._id": qobjID,
+			"questions._id": qObjID,
 		}, bson.M{
 			"$pull": bson.M{
-				"questions": bson.M{"_id": qobjID},
+				"questions": bson.M{"_id": qObjID},
 			},
 		}).
 		Err(); err != nil {
@@ -303,7 +333,7 @@ func deleteQuestion(c *fiber.Ctx) error {
 		return c.Redirect("/login")
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/quiz/%v", objID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", objID.Hex(), uuidSess.ID()))
 }
 
 func removeAnswerFromQuestion(c *fiber.Ctx) error {
@@ -313,12 +343,15 @@ func removeAnswerFromQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	aid := c.Params("aid")
-	aobjID, err := primitive.ObjectIDFromHex(aid)
+	aObjID, err := primitive.ObjectIDFromHex(aid)
 	if err != nil {
 		return err
 	}
-	sess, _ := store.Get(c)
-	u := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	cl := db.Database().Collection("sessions")
 	ctx, stop := createCtx()
 	var s models.Session
@@ -326,11 +359,11 @@ func removeAnswerFromQuestion(c *fiber.Ctx) error {
 		FindOneAndUpdate(ctx, bson.M{
 			"_id":                   objID,
 			"owner":                 u.ID,
-			"questions.answers._id": aobjID,
+			"questions.answers._id": aObjID,
 		}, bson.M{
 			"$pull": bson.M{
 				"questions.$.answers": bson.M{
-					"_id": aobjID,
+					"_id": aObjID,
 				}},
 		}).
 		Decode(&s); err != nil {
@@ -338,7 +371,7 @@ func removeAnswerFromQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/quiz/%v", objID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", objID.Hex(), uuidSess.ID()))
 }
 
 func processForm(body string) (map[string][]string, error) {

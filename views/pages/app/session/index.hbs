@@ -1,19 +1,21 @@
 <h1>Poll quiz: {{session.name}}</h1>
-<p><a href="/app">Back to overview</a></p>
+<p><a href="/app?sessid={{sessid}}">Back to overview</a></p>
 <label>Code: <input type="text" readonly value={{session.code}}></label>
-<p><a href="/app/host/{{objectid session.iD}}">Open quiz for people to join</a></p>
+<p><a href="/app/host/{{objectid session.iD}}?sessid={{sessid}}">Open quiz for people to join</a></p>
 
 <section>
   <h2>Questions ({{len session.questions}})</h2>
-  <p><a href="/app/quiz/{{objectid session.iD}}/question/create">Add question</a></p>
+  <p><a href="/app/quiz/{{objectid session.iD}}/question/create?sessid={{sessid}}">Add question</a></p>
 
   <ol>
     {{#each session.questions as |question|}}
     <li>
       <h3>
         {{question.title}}
-        <a href="/app/quiz/{{objectid session.iD}}/question/edit/{{objectid question.iD}}">Edit question</a>
+        <a href="/app/quiz/{{objectid session.iD}}/question/edit/{{objectid question.iD}}?sessid={{sessid}}">Edit
+          question</a>
         <form action="/app/quiz/{{objectid session.iD}}/question/delete/{{objectid question.iD}}" method="POST">
+          <input type="hidden" name="sessid" value="{{sessid}}">
           <button>Delete question</button>
         </form>
       </h3>
@@ -28,6 +30,7 @@
           <li>
             {{answer.title}}
             <form action="/app/quiz/{{objectid session.iD}}/answer/delete/{{objectid answer.iD}}" method="POST">
+              <input type="hidden" name="sessid" value="{{sessid}}">
               <button>Delete answer</button>
             </form>
           </li>
@@ -41,6 +44,7 @@
 <section>
   <h2>Danger zone</h2>
   <form action="/app/quiz/delete/{{objectid session.iD}}" method="POST">
+    <input type="hidden" name="sessid" value="{{sessid}}">
     <button>Delete poll quiz</button>
   </form>
 </section>

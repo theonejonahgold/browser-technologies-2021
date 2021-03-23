@@ -1,6 +1,7 @@
 {{#unless answered}}
 <h1>{{question.title}}</h1>
 <form action="/app/join/answer" method="POST">
+  <input type="hidden" name="sessid" value="{{sessid}}">
   {{#each question.answers as |answer|}}
   <label>
     {{answer.title}}
@@ -11,7 +12,7 @@
   <button>Send in answer</button>
 </form>
 {{else}}
-<meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}">
+<meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}&sessid={{sessid}}">
 <h1>{{question.title}}</h1>
 <p>Your answer was: {{answer.title}}</p>
 <p>Waiting for results to come in...</p>

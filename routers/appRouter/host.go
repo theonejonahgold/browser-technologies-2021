@@ -13,14 +13,17 @@ import (
 )
 
 func hostRouter(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID := sess.Get("current-hosting").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-hosting").(primitive.ObjectID)
+	if !ok {
+		sObjID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		stop()
 		return err
@@ -28,17 +31,17 @@ func hostRouter(c *fiber.Ctx) error {
 	stop()
 	switch s.State {
 	case models.Waiting:
-		return c.Redirect("/app/host/waiting")
+		return c.Redirect(fmt.Sprintf("/app/host/waiting?sessid=%v", uuidSess.ID()))
 	case models.QuestionCountdown:
-		return c.Redirect("/app/host/countdown")
+		return c.Redirect(fmt.Sprintf("/app/host/countdown?sessid=%v", uuidSess.ID()))
 	case models.QuestionOpen:
-		return c.Redirect("/app/host/answer")
+		return c.Redirect(fmt.Sprintf("/app/host/answer?sessid=%v", uuidSess.ID()))
 	case models.QuestionClosed:
-		return c.Redirect("/app/host/question-results")
+		return c.Redirect(fmt.Sprintf("/app/host/question-results?sessid=%v", uuidSess.ID()))
 	case models.Finished:
-		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results", s.ID.Hex()))
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	default:
-		return c.Redirect("/app?error=session_noexist")
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
 	}
 }
 
@@ -47,12 +50,18 @@ func host(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	sess, _ := store.Get(c)
+	sess, uuidSess, _ := store.Get(c)
 	defer sess.Save()
 	if sID, ok := sess.Get("current-hosting").(primitive.ObjectID); ok && sID == id {
 		return hostRouter(c)
 	}
-	u, _ := sess.Get("user").(models.User)
+	if sID, ok := uuidSess.Get("current-hosting").(primitive.ObjectID); ok && sID == id {
+		return hostRouter(c)
+	}
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 
@@ -68,8 +77,9 @@ func host(c *fiber.Ctx) error {
 	}
 	stop()
 	sess.Set("current-hosting", s.ID)
+	uuidSess.Set("current-hosting", s.ID)
 	if s.State != models.Creating && s.State != models.Waiting {
-		return c.Redirect(fmt.Sprintf("/app/host/%v", s.ID.Hex()))
+		return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	}
 	ctx, stop = createCtx()
 	if err := db.
@@ -85,12 +95,15 @@ func host(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/host/%v", s.ID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 }
 
 func hostWaitingRoom(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sID := sess.Get("current-hosting").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sID, ok := sess.Get("current-hosting").(primitive.ObjectID)
+	if !ok {
+		sID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
@@ -103,15 +116,22 @@ func hostWaitingRoom(c *fiber.Ctx) error {
 	}
 	return c.Render("pages/app/host/waiting", fiber.Map{
 		"session": s,
+		"sessid":  uuidSess.ID(),
 	}, "layouts/host")
 }
 
 func startSession(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	u, _ := sess.Get("user").(models.User)
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	sID, ok := sess.Get("current-hosting").(primitive.ObjectID)
 	if !ok {
-		return c.Redirect("/app?error=session_nostart")
+		sID, ok = uuidSess.Get("current-hosting").(primitive.ObjectID)
+		if !ok {
+			return c.Redirect(fmt.Sprintf("/app?error=session_nostart&sessid=%v", uuidSess.ID()))
+		}
 	}
 	var s models.Session
 	ctx, stop := createCtx()
@@ -141,14 +161,17 @@ func startSession(c *fiber.Ctx) error {
 	}
 	stop()
 	go changeStateAfterCountdown(s)
-	return c.Redirect(fmt.Sprintf("/app/host/%v", s.ID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 }
 
 func hostCountdown(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID, ok := sess.Get("current-hosting").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-hosting").(primitive.ObjectID)
 	if !ok {
-		return c.Redirect("/app")
+		sObjID, ok = uuidSess.Get("current-hosting").(primitive.ObjectID)
+		if !ok {
+			return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
+		}
 	}
 	var s models.Session
 	ctx, stop := createCtx()
@@ -156,7 +179,7 @@ func hostCountdown(c *fiber.Ctx) error {
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		return err
 	}
@@ -170,19 +193,23 @@ func hostCountdown(c *fiber.Ctx) error {
 	return c.Render("pages/app/host/countdown", fiber.Map{
 		"session":  s,
 		"question": q,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/host")
 }
 
 func hostAnswerPage(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID := sess.Get("current-hosting").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-hosting").(primitive.ObjectID)
+	if !ok {
+		sObjID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	defer stop()
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		return err
 	}
@@ -201,19 +228,23 @@ func hostAnswerPage(c *fiber.Ctx) error {
 		"session":  s,
 		"question": currQ,
 		"amtAns":   amtAns,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/host")
 }
 
 func hostQResults(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID := sess.Get("current-hosting").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-hosting").(primitive.ObjectID)
+	if !ok {
+		sObjID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	defer stop()
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		return err
 	}
@@ -226,12 +257,16 @@ func hostQResults(c *fiber.Ctx) error {
 	return c.Render("pages/app/host/results", fiber.Map{
 		"session":  s,
 		"question": currQ,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/host")
 }
 
 func nextQuestion(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sID := sess.Get("current-hosting").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sID, ok := sess.Get("current-hosting").(primitive.ObjectID)
+	if !ok {
+		sID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
@@ -271,7 +306,7 @@ func nextQuestion(c *fiber.Ctx) error {
 	if state != models.Finished {
 		go changeStateAfterCountdown(s)
 	}
-	return c.Redirect(fmt.Sprintf("/app/host/%v", s.ID.Hex()))
+	return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 }
 
 func changeStateAfterCountdown(s models.Session) {

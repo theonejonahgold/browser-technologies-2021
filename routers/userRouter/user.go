@@ -3,20 +3,21 @@ package userRouter
 import (
 	"bt/db"
 	"bt/db/models"
+	"bt/isosession"
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/matthewhartstonge/argon2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var store *session.Store
+var store *isosession.IsoStore
 
-func NewRouter(app *fiber.App, sessStore *session.Store) {
+func NewRouter(app *fiber.App, sessStore *isosession.IsoStore) {
 	store = sessStore
 	app.Get("/login", loginPage)
 	app.Post("/login", loginUser)
@@ -68,13 +69,14 @@ func loginUser(c *fiber.Ctx) error {
 	if !ok {
 		return c.Redirect("/login?error=password_invalid")
 	}
-	sess, err := store.Get(c)
+	sess, uuidSess, err := store.Get(c)
 	if err != nil {
 		return err
 	}
 	defer sess.Save()
 	sess.Set("user", u)
-	return c.Redirect("/app/")
+	uuidSess.Set("user", u)
+	return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
 }
 
 func registerPage(c *fiber.Ctx) error {

@@ -14,14 +14,17 @@ import (
 )
 
 func joinRouter(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID := sess.Get("current-joining").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-joining").(primitive.ObjectID)
+	if !ok {
+		sObjID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		stop()
 		return err
@@ -29,24 +32,27 @@ func joinRouter(c *fiber.Ctx) error {
 	stop()
 	switch s.State {
 	case models.Waiting:
-		return c.Redirect("/app/join/waiting")
+		return c.Redirect(fmt.Sprintf("/app/join/waiting?sessid=%v", uuidSess.ID()))
 	case models.QuestionCountdown:
-		return c.Redirect("/app/join/countdown")
+		return c.Redirect(fmt.Sprintf("/app/join/countdown?sessid=%v", uuidSess.ID()))
 	case models.QuestionOpen:
-		return c.Redirect("/app/join/answer")
+		return c.Redirect(fmt.Sprintf("/app/join/answer?sessid=%v", uuidSess.ID()))
 	case models.QuestionClosed:
-		return c.Redirect("/app/join/question-results")
+		return c.Redirect(fmt.Sprintf("/app/join/question-results?sessid=%v", uuidSess.ID()))
 	case models.Finished:
-		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results", s.ID.Hex()))
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	default:
-		return c.Redirect("/app?error=session_noexist")
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
 	}
 }
 
 func join(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
+	sess, uuidSess, _ := store.Get(c)
 	defer sess.Save()
 	if sess.Get("current-joining") != nil {
+		return joinRouter(c)
+	}
+	if uuidSess.Get("current-joining") != nil {
 		return joinRouter(c)
 	}
 	var joinForm struct {
@@ -55,16 +61,19 @@ func join(c *fiber.Ctx) error {
 	if err := c.QueryParser(&joinForm); err != nil {
 		return err
 	}
-	u := sess.Get("user").(models.User)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
 	var s models.Session
 	cl := db.Database().Collection("sessions")
 	if amt, err := cl.CountDocuments(context.Background(), bson.M{"code": joinForm.Session}); err != nil {
 		if err == mongo.ErrNoDocuments {
-			return c.Redirect("/app?error=session_sameacc")
+			return c.Redirect(fmt.Sprintf("/app?error=session_sameacc?sessid=%v", uuidSess.ID()))
 		}
 		return err
 	} else if amt == 0 {
-		return c.Redirect("/app?error=session_noexist")
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
 	}
 	ctx, stop := createCtx()
 	if err := cl.
@@ -75,13 +84,13 @@ func join(c *fiber.Ctx) error {
 		Decode(&s); err != nil {
 		stop()
 		if err == mongo.ErrNoDocuments {
-			return c.Redirect("/app?error=session_sameacc")
+			return c.Redirect(fmt.Sprintf("/app?error=session_sameacc?sessid=%v", uuidSess.ID()))
 		}
 		return err
 	}
 	stop()
 	if s.State == models.Creating {
-		return c.Redirect("/app?error=session_noexist")
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
 	}
 	joined := false
 	for _, v := range s.Participants {
@@ -90,7 +99,7 @@ func join(c *fiber.Ctx) error {
 		}
 	}
 	if s.State != models.Waiting && !joined {
-		return c.Redirect("/app?error=session_closed")
+		return c.Redirect(fmt.Sprintf("/app?error=session_closed?sessid=%v", uuidSess.ID()))
 	}
 	ctx, stop = createCtx()
 	if err := cl.
@@ -112,21 +121,24 @@ func join(c *fiber.Ctx) error {
 	}
 	stop()
 	sess.Set("current-joining", s.ID)
-	return c.Redirect(fmt.Sprintf("/app/join?session=%v", s.Code))
+	return c.Redirect(fmt.Sprintf("/app/join?session=%v&sessid=%v", s.Code, uuidSess.ID()))
 }
 
 func joinWaitingRoom(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID, ok := sess.Get("current-joining").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-joining").(primitive.ObjectID)
 	if !ok {
-		return c.Redirect("/app")
+		sObjID, ok = uuidSess.Get("current-joining").(primitive.ObjectID)
+		if !ok {
+			return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
+		}
 	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		return err
 	}
@@ -145,14 +157,18 @@ func joinWaitingRoom(c *fiber.Ctx) error {
 	return c.Render("pages/app/join/waiting", fiber.Map{
 		"session": s,
 		"user":    u,
+		"sessid":  uuidSess.ID(),
 	}, "layouts/join")
 }
 
 func joinCountdown(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID, ok := sess.Get("current-joining").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-joining").(primitive.ObjectID)
 	if !ok {
-		return c.Redirect("/app")
+		sObjID, ok = uuidSess.Get("current-joining").(primitive.ObjectID)
+		if !ok {
+			return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
+		}
 	}
 	var s models.Session
 	ctx, stop := createCtx()
@@ -160,7 +176,7 @@ func joinCountdown(c *fiber.Ctx) error {
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		return err
 	}
@@ -174,14 +190,18 @@ func joinCountdown(c *fiber.Ctx) error {
 	return c.Render("pages/app/join/countdown", fiber.Map{
 		"session":  s,
 		"question": q,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/join")
 }
 
 func joinAnswerPage(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sobjID, ok := sess.Get("current-joining").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sObjID, ok := sess.Get("current-joining").(primitive.ObjectID)
 	if !ok {
-		return c.Redirect("/app")
+		sObjID, ok = uuidSess.Get("current-joining").(primitive.ObjectID)
+		if !ok {
+			return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
+		}
 	}
 	var s models.Session
 	ctx, stop := createCtx()
@@ -189,7 +209,7 @@ func joinAnswerPage(c *fiber.Ctx) error {
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sobjID}).
+		FindOne(ctx, bson.M{"_id": sObjID}).
 		Decode(&s); err != nil {
 		return err
 	}
@@ -215,6 +235,7 @@ aLoop:
 		"session":  s,
 		"user":     u,
 		"answered": answered,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/join")
 }
 
@@ -228,8 +249,11 @@ func joinAnswerQuestion(c *fiber.Ctx) error {
 	}
 	uID, _ := primitive.ObjectIDFromHex(body.UserID)
 	aID, _ := primitive.ObjectIDFromHex(body.Answer)
-	sess, _ := store.Get(c)
-	sID := sess.Get("current-joining").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sID, ok := sess.Get("current-joining").(primitive.ObjectID)
+	if !ok {
+		sID = uuidSess.Get("current-joining").(primitive.ObjectID)
+	}
 	ctx, stop := createCtx()
 	var s models.Session
 	defer stop()
@@ -284,12 +308,15 @@ func joinAnswerQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/join?session=%v", s.Code))
+	return c.Redirect(fmt.Sprintf("/app/join?session=%v&sessid=%v", s.Code, uuidSess.ID()))
 }
 
 func joinQResultsPage(c *fiber.Ctx) error {
-	sess, _ := store.Get(c)
-	sID := sess.Get("current-joining").(primitive.ObjectID)
+	sess, uuidSess, _ := store.Get(c)
+	sID, ok := sess.Get("current-joining").(primitive.ObjectID)
+	if !ok {
+		sID = uuidSess.Get("current-joining").(primitive.ObjectID)
+	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
@@ -310,5 +337,6 @@ func joinQResultsPage(c *fiber.Ctx) error {
 	return c.Render("pages/app/join/results", fiber.Map{
 		"session":  s,
 		"question": currQ,
+		"sessid":   uuidSess.ID(),
 	}, "layouts/join")
 }

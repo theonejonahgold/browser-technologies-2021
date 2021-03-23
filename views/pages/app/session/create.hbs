@@ -1,5 +1,6 @@
 <h1>New session</h1>
 <form action="/app/quiz/create" method="post">
+  <input type="hidden" name="sessid" value="{{sessid}}">
   <label>
     Name
     <input type="text" name="name">
