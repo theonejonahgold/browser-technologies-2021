@@ -52,10 +52,10 @@ func NewRouter(app *fiber.App, sessStore *isosession.IsoStore) {
 func isLoggedIn(c *fiber.Ctx) error {
 	sess, uuidSess, err := store.Get(c)
 	if err != nil {
-		return err
+		return c.Redirect("/login")
 	}
 	user := sess.Get("user")
-	if user == nil {
+	if user == nil && uuidSess != nil {
 		user = uuidSess.Get("user")
 	}
 	if user == nil {

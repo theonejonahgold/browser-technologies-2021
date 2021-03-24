@@ -42,7 +42,7 @@ func joinRouter(c *fiber.Ctx) error {
 	case models.Finished:
 		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	default:
-		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist&sessid=%v", uuidSess.ID()))
 	}
 }
 
@@ -69,11 +69,11 @@ func join(c *fiber.Ctx) error {
 	cl := db.Database().Collection("sessions")
 	if amt, err := cl.CountDocuments(context.Background(), bson.M{"code": joinForm.Session}); err != nil {
 		if err == mongo.ErrNoDocuments {
-			return c.Redirect(fmt.Sprintf("/app?error=session_sameacc?sessid=%v", uuidSess.ID()))
+			return c.Redirect(fmt.Sprintf("/app?error=session_sameacc&sessid=%v", uuidSess.ID()))
 		}
 		return err
 	} else if amt == 0 {
-		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist&sessid=%v", uuidSess.ID()))
 	}
 	ctx, stop := createCtx()
 	if err := cl.
@@ -84,13 +84,13 @@ func join(c *fiber.Ctx) error {
 		Decode(&s); err != nil {
 		stop()
 		if err == mongo.ErrNoDocuments {
-			return c.Redirect(fmt.Sprintf("/app?error=session_sameacc?sessid=%v", uuidSess.ID()))
+			return c.Redirect(fmt.Sprintf("/app?error=session_sameacc&sessid=%v", uuidSess.ID()))
 		}
 		return err
 	}
 	stop()
 	if s.State == models.Creating {
-		return c.Redirect(fmt.Sprintf("/app?error=session_noexist?sessid=%v", uuidSess.ID()))
+		return c.Redirect(fmt.Sprintf("/app?error=session_noexist&sessid=%v", uuidSess.ID()))
 	}
 	joined := false
 	for _, v := range s.Participants {
@@ -99,7 +99,7 @@ func join(c *fiber.Ctx) error {
 		}
 	}
 	if s.State != models.Waiting && !joined {
-		return c.Redirect(fmt.Sprintf("/app?error=session_closed?sessid=%v", uuidSess.ID()))
+		return c.Redirect(fmt.Sprintf("/app?error=session_closed&sessid=%v", uuidSess.ID()))
 	}
 	ctx, stop = createCtx()
 	if err := cl.

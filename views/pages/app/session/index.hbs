@@ -1,60 +1,71 @@
-<h1>Poll quiz: {{session.name}}</h1>
-<p><a href="/app?sessid={{sessid}}">Back to overview</a></p>
-<p><a href="/app/host/{{objectid session.iD}}?sessid={{sessid}}">Open quiz for people to join</a></p>
-
-<section>
-  <h2>Questions ({{len session.questions}})</h2>
-  <p><a href="/app/quiz/{{objectid session.iD}}/question/create?sessid={{sessid}}">Add question</a></p>
-
-  <ol>
-    {{#each session.questions as |question|}}
-    <li>
-      <h3>
-        {{question.title}}
-        <a href="/app/quiz/{{objectid session.iD}}/question/edit/{{objectid question.iD}}?sessid={{sessid}}">Edit
-          question</a>
-        <form action="/app/quiz/{{objectid session.iD}}/question/delete/{{objectid question.iD}}" method="POST">
-          <input type="hidden" name="sessid" value="{{sessid}}">
-          <button>Delete question</button>
-        </form>
-      </h3>
-      <details>
-        {{#if (len question.answers)}}
-        <summary>{{len question.answers}} answers</summary>
-        {{else}}
-        <summary>0 answers</summary>
-        {{/if}}
-        <ol>
-          {{#each question.answers as |answer|}}
-          <li>
-            {{answer.title}}
-            <form action="/app/quiz/{{objectid session.iD}}/answer/delete/{{objectid answer.iD}}" method="POST">
+<header>
+  <a href="/app?sessid={{sessid}}">← Overview</a>
+  <h1>Editing quiz</h1>
+  <h2>{{session.name}}</h2>
+</header>
+<main>
+  <a class="button large" href="/app/host/{{objectid session.iD}}?sessid={{sessid}}">Open quiz doors</a>
+  <section>
+    <header>
+      <h1>Questions ({{len session.questions}})</h1>
+      <a class="button" href="/app/quiz/{{objectid session.iD}}/question/create?sessid={{sessid}}">Add question</a>
+    </header>
+    <ol>
+      {{#each session.questions as |question|}}
+      <li>
+        <article>
+          <header>
+            <h2>
+              {{question.title}}
+            </h2>
+            <a class="button"
+              href="/app/quiz/{{objectid session.iD}}/question/edit/{{objectid question.iD}}?sessid={{sessid}}">
+              Edit
+            </a>
+            <form action="/app/quiz/{{objectid session.iD}}/question/delete/{{objectid question.iD}}" method="POST">
               <input type="hidden" name="sessid" value="{{sessid}}">
-              <button>Delete answer</button>
+              <button>Delete</button>
             </form>
-          </li>
-          {{/each}}
-        </ol>
-      </details>
-    </li>
-    {{/each}}
-  </ol>
-</section>
-<section>
-  <h2>Options</h2>
-  <form action="/app/quiz/edit/{{objectid session.iD}}" method="POST">
-    <input type="hidden" name="sessid" value="{{sessid}}">
-    <label>
-      Quiz name <input type="text" name="name" value="{{session.name}}">
-    </label>
-    <label>
-      Time per question <input type="number" name="duration" min="0" max="30" step="1"
-        value="{{session.questionTimer}}">
-    </label>
-    <button>Save changes</button>
-  </form>
-  <form action="/app/quiz/delete/{{objectid session.iD}}" method="POST">
-    <input type="hidden" name="sessid" value="{{sessid}}">
-    <button>Delete poll quiz</button>
-  </form>
-</section>
+          </header>
+          <details>
+            {{#if (len question.answers)}}
+            <summary>{{len question.answers}} answers</summary>
+            {{else}}
+            <summary>0 answers</summary>
+            {{/if}}
+            <ol>
+              {{#each question.answers as |answer|}}
+              <li>
+                {{answer.title}}
+                <form action="/app/quiz/{{objectid session.iD}}/answer/delete/{{objectid answer.iD}}" method="POST">
+                  <input type="hidden" name="sessid" value="{{sessid}}">
+                  <button>Delete</button>
+                </form>
+              </li>
+              {{/each}}
+            </ol>
+          </details>
+        </article>
+      </li>
+      {{/each}}
+    </ol>
+  </section>
+  <section>
+    <h1>Options</h1>
+    <form action="/app/quiz/edit/{{objectid session.iD}}" method="POST">
+      <input type="hidden" name="sessid" value="{{sessid}}">
+      <label>
+        Quiz name <input type="text" name="name" value="{{session.name}}">
+      </label>
+      <label>
+        Time per question <input type="number" name="duration" min="0" max="30" step="1"
+          value="{{session.questionTimer}}">
+      </label>
+      <button class="large">Save changes</button>
+    </form>
+    <form class="quiz-delete" action="/app/quiz/delete/{{objectid session.iD}}" method="POST">
+      <input type="hidden" name="sessid" value="{{sessid}}">
+      <button class="large">Delete poll quiz</button>
+    </form>
+  </section>
+</main>

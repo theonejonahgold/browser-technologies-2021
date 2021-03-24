@@ -64,11 +64,38 @@ func main() {
 			return "Continue session"
 		}
 	})
+	engine.AddFunc("stateCreating", func(state models.SessionState) bool {
+		return state == models.Creating
+	})
+	engine.AddFunc("stateFinished", func(state models.SessionState) bool {
+		return state == models.Finished
+	})
+	engine.AddFunc("statePlaying", func(state models.SessionState) bool {
+		return state != models.Creating && state != models.Finished
+	})
+	engine.AddFunc("currentQuestion", func(session models.Session) int {
+		for k, v := range session.Questions {
+			if v.ID == session.CurrentQuestion {
+				return k
+			}
+		}
+		return 0
+	})
+	engine.AddFunc("totalAnswers", func(session models.Session) int {
+		var totalAnswers int
+		for _, q := range session.Questions {
+			for _, a := range q.Answers {
+				totalAnswers += len(a.Participants)
+			}
+		}
+		return totalAnswers
+	})
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
 	app.Use(compress.New(compress.Config{Level: compress.LevelBestCompression}))
 	app.Use(logger.New(logger.ConfigDefault))
+	app.Static("/static", "./static", fiber.Static{Compress: false})
 	sessStore := isosession.NewStore()
 	userRouter.NewRouter(app, sessStore)
 	appRouter.NewRouter(app, sessStore)

@@ -1,21 +1,25 @@
-<h1>Editing: {{question.title}}</h1>
-<a href="/app/quiz/{{objectid sid}}?sessid={{sessid}}">Back to session</a>
-
-<form action="/app/quiz/{{objectid sid}}/question/edit/{{objectid question.iD}}" method="POST">
-  <input type="hidden" name="sessid" value="{{sessid}}">
-  <label>Question title <input type="text" name="title" value="{{question.title}}"></label>
-  <fieldset>
-    <legend>Answers</legend>
-    {{#each question.answers}}
-    <label>
-      Answer {{addOne @index}}:
-      <input type="text" name="answer-{{@index}}" value="{{this.title}}">
-    </label>
-    {{/each}}
-    <label>
-      New answer
-      <input autofocus type="text" name="answer">
-    </label>
-  </fieldset>
-  <button>Save</button>
-</form>
+<header>
+  <a href="/app/quiz/{{objectid sid}}?sessid={{sessid}}">← Quiz</a>
+  <h1>Editing question</h1>
+  <h2>{{question.title}}</h2>
+</header>
+<main>
+  <form action="/app/quiz/{{objectid sid}}/question/edit/{{objectid question.iD}}" method="POST">
+    <input type="hidden" name="sessid" value="{{sessid}}">
+    <label>Question title <input type="text" name="title" value="{{question.title}}"></label>
+    <fieldset>
+      <legend>Answers</legend>
+      {{#each question.answers}}
+      <label>
+        Answer {{addOne @index}}:
+        <input type="text" name="answer-{{@index}}" value="{{this.title}}">
+      </label>
+      {{/each}}
+      <label>
+        New answer
+        <input autofocus type="text" name="answer">
+      </label>
+    </fieldset>
+    <button>Save</button>
+  </form>
+</main>

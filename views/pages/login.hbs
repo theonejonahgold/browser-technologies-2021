@@ -1,18 +1,22 @@
-<h1>Log in</h1>
-<form action="/login" method="POST">
-  <label>
-    Username
-    <input type="text" name="username" required="true">
-  </label>
-  {{#if errors.username}}
-  <p>{{errors.username}}</p>
-  {{/if}}
-  <label>
-    Password
-    <input type="password" name="password">
-  </label>
-  {{#if errors.password}}
-  <p>{{errors.password}}</p>
-  {{/if}}
-  <button type="submit">Log in</button>
-</form>
+<header>
+  <h1>Log in</h1>
+</header>
+<main>
+  <form action="/login" method="POST">
+    <label>
+      Username
+      <input type="text" name="username" required="true">
+    </label>
+    {{#if errors.username}}
+    <p>{{errors.username}}</p>
+    {{/if}}
+    <label>
+      Password
+      <input type="password" name="password">
+    </label>
+    {{#if errors.password}}
+    <p>{{errors.password}}</p>
+    {{/if}}
+    <button class="large" type="submit">Log in</button>
+  </form>
+</main>

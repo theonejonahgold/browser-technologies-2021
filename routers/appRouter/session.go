@@ -46,7 +46,7 @@ func saveSessionName(c *fiber.Ctx) error {
 		ID:              id,
 		Name:            si.Name,
 		Owner:           u.ID,
-		QuestionTimer:   0,
+		QuestionTimer:   15,
 		Participants:    []*models.Participant{},
 		Questions:       []*models.Question{},
 		Code:            fmt.Sprintf("%v-%v", u.Username, id.Hex()[len(id.Hex())-8:]),

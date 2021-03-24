@@ -1,6 +1,9 @@
 <meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}&sessid={{sessid}}">
-<h1>{{session.name}}</h1>
+<header>
+  <h1>Waiting</h1>
+  <h2>{{session.name}}</h2>
+</header>
 
-<p>Waiting for {{user.username}} to start the session</p>
-
-<a href="/app/join?session={{session.code}}">Refresh status</a>
+<main>
+  <p>Waiting for {{user.username}} to start the session</p>
+</main>

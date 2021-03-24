@@ -23,7 +23,7 @@ Goldhoot is a quiz platform to the likes of [Kahoot](https://kahoot.com). Create
 - [x] Create question
 	- [x] Change question title
 	- [x] Delete question
-	- [ ] Change question position in quiz
+	- [x] Change question position in quiz
 - [x] Create answer
 	- [x] Edit answer
 	- [x] Delete answer

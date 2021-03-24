@@ -1,7 +1,13 @@
-<h1>Results for {{session.name}}</h1>
-{{#each session.questions as |question|}}
-<h2>{{question.title}}</h2>
-{{#each question.answers}}
-{{> partials/answer-result}}
-{{/each}}
-{{/each}}
+<header>
+  <a href="/app?sessid={{sessid}}">← Overview</a>
+  <h1>Quiz results</h1>
+  <h2>{{session.name}}</h2>
+</header>
+<main>
+  {{#each session.questions as |question|}}
+  <h2>{{question.title}}</h2>
+  {{#each question.answers}}
+  {{> partials/answer-result}}
+  {{/each}}
+  {{/each}}
+</main>

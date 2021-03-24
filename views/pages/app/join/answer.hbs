@@ -1,19 +1,27 @@
 {{#unless answered}}
-<h1>{{question.title}}</h1>
-<form action="/app/join/answer" method="POST">
-  <input type="hidden" name="sessid" value="{{sessid}}">
-  {{#each question.answers as |answer|}}
-  <label>
-    {{answer.title}}
-    <input type="radio" name="answer" value="{{objectid answer.iD}}">
-  </label>
-  {{/each}}
-  <input type="hidden" name="userid" value="{{objectid user.iD}}">
-  <button>Send in answer</button>
-</form>
-{{else}}
-<meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}&sessid={{sessid}}">
-<h1>{{question.title}}</h1>
-<p>Your answer was: {{answer.title}}</p>
-<p>Waiting for results to come in...</p>
-{{/unless}}
+<header>
+  <h1>Answer now</h1>
+  <h2>{{question.title}}</h2>
+</header>
+<main>
+  <form action="/app/join/answer" method="POST">
+    <input type="hidden" name="sessid" value="{{sessid}}">
+    <fieldset>
+      <legend>Possible answers</legend>
+      {{#each question.answers as |answer|}}
+      <input type="radio" name="answer" value="{{objectid answer.iD}}" id="{{answer.title}}">
+      <label for="{{answer.title}}">
+        {{answer.title}}
+      </label>
+      {{/each}}
+    </fieldset>
+    <input type="hidden" name="userid" value="{{objectid user.iD}}">
+    <button class="large">Send in answer</button>
+  </form>
+  {{else}}
+  <meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}&sessid={{sessid}}">
+  <h1>{{question.title}}</h1>
+  <p>Your answer was: {{answer.title}}</p>
+  <p>Waiting for results to come in...</p>
+  {{/unless}}
+</main>

@@ -324,4 +324,25 @@ func changeStateAfterCountdown(s models.Session) {
 		stop()
 	}
 	stop()
+	go changeStateAfterQTimeElapsed(s)
+}
+
+func changeStateAfterQTimeElapsed(s models.Session) {
+	if s.QuestionTimer == 0 {
+		return
+	}
+	<-time.After(time.Duration(s.QuestionTimer) * time.Second)
+	ctx, stop := createCtx()
+	if err := db.
+		Database().
+		Collection("sessions").
+		FindOneAndUpdate(
+			ctx,
+			bson.M{"_id": s.ID, "state": models.QuestionOpen, "current": s.CurrentQuestion},
+			bson.M{"$set": bson.M{"state": models.QuestionClosed}}).
+		Err(); err != nil {
+		fmt.Printf("error while updating question state: %v", err)
+		stop()
+	}
+	stop()
 }

@@ -1,7 +1,11 @@
 <meta http-equiv="refresh" content="2; url=/app/host/{{objectid session.iD}}?sessid={{sessid}}">
-<h1>Waiting for people to join...</h1>
-<label>Code: <input type="text" readonly value={{session.code}}></label>
+<header>
+  <h1>Waiting</h1>
+  <h2>{{session.name}}</h2>
+</header>
 
-<p>{{len session.participants}} people have joined</p>
-
-<a href="/app/host/start?sessid={{sessid}}">Start quiz</a>
+<main>
+  <p>{{len session.participants}} people have joined</p>
+  <label class="inline">Code: <input type="text" readonly value={{session.code}}></label>
+  <a class="button large" href="/app/host/start?sessid={{sessid}}">Start quiz</a>
+</main>

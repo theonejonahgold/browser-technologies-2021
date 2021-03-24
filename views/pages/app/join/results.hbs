@@ -1,5 +1,10 @@
 <meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}&sessid={{sessid}}">
-<h1>Results for: {{question.title}}</h1>
-{{#each question.answers}}
-{{> partials/answer-result}}
-{{/each}}
+<header>
+  <h1>Question results</h1>
+  <h2>{{question.title}}</h2>
+</header>
+<main>
+  {{#each question.answers}}
+  {{> partials/answer-result}}
+  {{/each}}
+</main>
