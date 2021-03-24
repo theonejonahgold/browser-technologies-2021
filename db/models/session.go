@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -21,7 +19,7 @@ type Session struct {
 	ID              primitive.ObjectID `json:"_id" bson:"_id"`
 	Name            string             `json:"name" bson:"name"`
 	Owner           primitive.ObjectID `json:"owner" bson:"owner"`
-	QuestionTimer   time.Duration      `json:"question-timer" bson:"questionTimer"`
+	QuestionTimer   int                `json:"question-timer" bson:"questionTimer"`
 	Participants    []*Participant     `json:"participants" bson:"participants"`
 	Questions       []*Question        `json:"questions" bson:"questions"`
 	Code            string             `json:"code" bson:"code"`
@@ -30,8 +28,7 @@ type Session struct {
 }
 
 type SessionInput struct {
-	Name          string        `json:"name" bson:"name"`
-	QuestionTimer time.Duration `json:"question-timer" bson:"questionTimer"`
+	Name string `json:"name" bson:"name"`
 }
 
 type Participant struct {

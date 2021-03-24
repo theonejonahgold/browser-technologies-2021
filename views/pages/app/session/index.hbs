@@ -1,6 +1,5 @@
 <h1>Poll quiz: {{session.name}}</h1>
 <p><a href="/app?sessid={{sessid}}">Back to overview</a></p>
-<label>Code: <input type="text" readonly value={{session.code}}></label>
 <p><a href="/app/host/{{objectid session.iD}}?sessid={{sessid}}">Open quiz for people to join</a></p>
 
 <section>
@@ -42,7 +41,18 @@
   </ol>
 </section>
 <section>
-  <h2>Danger zone</h2>
+  <h2>Options</h2>
+  <form action="/app/quiz/edit/{{objectid session.iD}}" method="POST">
+    <input type="hidden" name="sessid" value="{{sessid}}">
+    <label>
+      Quiz name <input type="text" name="name" value="{{session.name}}">
+    </label>
+    <label>
+      Time per question <input type="number" name="duration" min="0" max="30" step="1"
+        value="{{session.questionTimer}}">
+    </label>
+    <button>Save changes</button>
+  </form>
   <form action="/app/quiz/delete/{{objectid session.iD}}" method="POST">
     <input type="hidden" name="sessid" value="{{sessid}}">
     <button>Delete poll quiz</button>

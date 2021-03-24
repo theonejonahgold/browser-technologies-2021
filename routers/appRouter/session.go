@@ -58,6 +58,47 @@ func saveSessionName(c *fiber.Ctx) error {
 	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", id.Hex(), uuidSess.ID()))
 }
 
+func editSession(c *fiber.Ctx) error {
+	var body struct {
+		Name          string `form:"name"`
+		QuestionTimer int    `form:"duration"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return err
+	}
+	id := c.Params("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
+	ctx, stop := createCtx()
+	setBody := bson.M{}
+	if len(body.Name) != 0 {
+		setBody["name"] = body.Name
+	}
+	if body.QuestionTimer >= 0 && body.QuestionTimer <= 30 {
+		setBody["questionTimer"] = body.QuestionTimer
+	}
+	if db.
+		Database().
+		Collection("sessions").
+		FindOneAndUpdate(
+			ctx,
+			bson.M{"_id": objID, "owner": u.ID},
+			bson.M{"$set": setBody}).
+		Err(); err != nil {
+		stop()
+		return err
+	}
+	stop()
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", objID.Hex(), uuidSess.ID()))
+}
+
 func deleteSession(c *fiber.Ctx) error {
 	id := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -71,10 +112,13 @@ func deleteSession(c *fiber.Ctx) error {
 	}
 	ctx, stop := createCtx()
 	defer stop()
-	if db.Database().Collection("sessions").FindOneAndDelete(ctx, bson.M{
-		"_id":   objID,
-		"owner": u.ID,
-	}).Err(); err != nil {
+	if db.
+		Database().
+		Collection("sessions").
+		FindOneAndDelete(
+			ctx,
+			bson.M{"_id": objID, "owner": u.ID}).
+		Err(); err != nil {
 		return err
 	}
 	return c.Redirect(fmt.Sprintf("/app?sessid=%v", uuidSess.ID()))
