@@ -9,16 +9,12 @@ type Question struct {
 }
 
 type QuestionInput struct {
-	Title   string         `json:"title" bson:"title"`
-	Answers []*AnswerInput `json:"answers" bson:"answers"`
+	Title   string   `json:"title" bson:"title" form:"title"`
+	Answers []string `json:"answers" bson:"answers" form:"answer"`
 }
 
 type Answer struct {
 	ID           primitive.ObjectID   `json:"_id" bson:"_id"`
 	Title        string               `json:"title" bson:"title"`
 	Participants []primitive.ObjectID `json:"participants" bson:"participants"`
-}
-
-type AnswerInput struct {
-	Title string `json:"title" bson:"title"`
 }

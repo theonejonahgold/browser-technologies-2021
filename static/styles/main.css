@@ -15,6 +15,10 @@
   --dark-blue: #003d5b;
 }
 
+.invisible {
+  display: none;
+}
+
 /* #region HEADER */
 body > header,
 main,
@@ -253,6 +257,10 @@ label.inline + button {
   display: inline;
 }
 
+fieldset + button {
+  margin-top: 2rem;
+}
+
 input[type="checkbox"],
 input[type="radio"] {
   display: inline-block;
@@ -439,23 +447,50 @@ details[open] {
 
 /* #region POLL QUIZ */
 article header {
+  position: relative;
   display: flex;
   align-items: flex-start;
 }
 
-article header > :-moz-any(.button, button):first-of-type {
+article header > h2 + * {
   margin-left: auto;
+}
+
+article header > h2 ~ *:not(:last-child) {
   margin-right: 1rem;
 }
 
-article header > :-webkit-any(.button, button):first-of-type {
-  margin-left: auto;
-  margin-right: 1rem;
+article header form[action*="order"] button {
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  background: none;
+  color: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: none;
 }
 
-article header > :is(.button, button):first-of-type {
-  margin-left: auto;
-  margin-right: 1rem;
+article header form[action*="order"] button:hover {
+  box-shadow: none;
+}
+
+article header form[action*="order"] button:before {
+  position: absolute;
+  left: -1.25rem;
+  font-size: 1rem;
+  color: black;
+  cursor: pointer;
+}
+
+article header form[action*="order"] button.up:before {
+  content: "▲";
+  top: -1rem;
+}
+
+article header form[action*="order"] button.down:before {
+  content: "▼";
+  top: 1.6rem;
 }
 
 .quiz-delete {

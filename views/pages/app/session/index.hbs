@@ -18,11 +18,24 @@
             <h2>
               {{question.title}}
             </h2>
+            {{#if (validIndex (subOne @index) (len session.questions))}}
+            <form method="POST" action="/app/quiz/{{objectid session.iD}}/order/{{@index}}/{{subOne @index}}">
+              <input type="hidden" name="sessid" value="{{sessid}}">
+              <button class="up">Move up</button>
+            </form>
+            {{/if}}
+            {{#if (validIndex (addOne @index) (len session.questions))}}
+            <form method="POST" action="/app/quiz/{{objectid session.iD}}/order/{{@index}}/{{addOne @index}}">
+              <input type="hidden" name="sessid" value="{{sessid}}">
+              <button class="down">Move down</button>
+            </form>
+            {{/if}}
             <a class="button"
               href="/app/quiz/{{objectid session.iD}}/question/edit/{{objectid question.iD}}?sessid={{sessid}}">
               Edit
             </a>
-            <form action="/app/quiz/{{objectid session.iD}}/question/delete/{{objectid question.iD}}" method="POST">
+            <form data-delete-message="Are you sure you want to delete this question?"
+              action="/app/quiz/{{objectid session.iD}}/question/delete/{{objectid question.iD}}" method="POST">
               <input type="hidden" name="sessid" value="{{sessid}}">
               <button>Delete</button>
             </form>
@@ -37,7 +50,8 @@
               {{#each question.answers as |answer|}}
               <li>
                 {{answer.title}}
-                <form action="/app/quiz/{{objectid session.iD}}/answer/delete/{{objectid answer.iD}}" method="POST">
+                <form data-delete-message="Are you sure you want to delete this answer?"
+                  action="/app/quiz/{{objectid session.iD}}/answer/delete/{{objectid answer.iD}}" method="POST">
                   <input type="hidden" name="sessid" value="{{sessid}}">
                   <button>Delete</button>
                 </form>
@@ -58,12 +72,13 @@
         Quiz name <input type="text" name="name" value="{{session.name}}">
       </label>
       <label>
-        Time per question <input type="number" name="duration" min="0" max="30" step="1"
+        Time per question (in seconds, 0 is infinite) <input type="number" name="duration" min="0" max="30" step="1"
           value="{{session.questionTimer}}">
       </label>
       <button class="large">Save changes</button>
     </form>
-    <form class="quiz-delete" action="/app/quiz/delete/{{objectid session.iD}}" method="POST">
+    <form class="quiz-delete" data-delete-message="Are you sure you want to delete this quiz?"
+      action="/app/quiz/delete/{{objectid session.iD}}" method="POST">
       <input type="hidden" name="sessid" value="{{sessid}}">
       <button class="large">Delete poll quiz</button>
     </form>

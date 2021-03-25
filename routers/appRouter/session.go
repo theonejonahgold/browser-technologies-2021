@@ -4,9 +4,7 @@ import (
 	"bt/db"
 	"bt/db/models"
 	"fmt"
-	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -194,7 +192,7 @@ func newQuestionPage(c *fiber.Ctx) error {
 }
 
 func saveNewQuestion(c *fiber.Ctx) error {
-	qi := models.QuestionInput{}
+	var qi models.QuestionInput
 	if err := c.BodyParser(&qi); err != nil {
 		return err
 	}
@@ -203,6 +201,14 @@ func saveNewQuestion(c *fiber.Ctx) error {
 		Title:   qi.Title,
 		Answers: []*models.Answer{},
 	}
+	for _, v := range qi.Answers {
+		q.Answers = append(q.Answers, &models.Answer{
+			ID:           primitive.NewObjectID(),
+			Title:        v,
+			Participants: []primitive.ObjectID{},
+		})
+	}
+	fmt.Printf("%+v", qi.Answers)
 	id := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -232,6 +238,65 @@ func saveNewQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", objID.Hex(), q.ID.Hex(), uuidSess.ID()))
+}
+
+func changeQuestionOrder(c *fiber.Ctx) error {
+	sid := c.Params("id")
+	sObjID, err := primitive.ObjectIDFromHex(sid)
+	if err != nil {
+		return err
+	}
+	sess, uuidSess, _ := store.Get(c)
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
+	}
+	var s models.Session
+	ctx, stop := createCtx()
+	if err := db.
+		Database().
+		Collection("sessions").
+		FindOne(ctx, bson.M{"_id": sObjID, "owner": u.ID}).
+		Decode(&s); err != nil {
+		stop()
+		return err
+	}
+	stop()
+	oldPos := c.Params("oldPos")
+	newPos := c.Params("newPos")
+	if len(oldPos) == 0 || len(newPos) == 0 {
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", sObjID.Hex(), uuidSess.ID()))
+	}
+	oldPosInt, err := strconv.Atoi(oldPos)
+	if err != nil {
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", sObjID.Hex(), uuidSess.ID()))
+	}
+	newPosInt, err := strconv.Atoi(newPos)
+	if err != nil {
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", sObjID.Hex(), uuidSess.ID()))
+	}
+	if oldPosInt < 0 || oldPosInt >= len(s.Questions) ||
+		newPosInt < 0 || newPosInt >= len(s.Questions) {
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", sObjID.Hex(), uuidSess.ID()))
+	}
+	qs := make([]*models.Question, len(s.Questions))
+	copy(qs, s.Questions)
+	var q1 = s.Questions[oldPosInt]
+	var q2 = s.Questions[newPosInt]
+	qs[newPosInt] = q1
+	qs[oldPosInt] = q2
+	ctx, stop = createCtx()
+	if err := db.
+		Database().
+		Collection("sessions").
+		FindOneAndUpdate(ctx,
+			bson.M{"_id": sObjID, "owner": u.ID},
+			bson.M{"$set": bson.M{"questions": qs}}).
+		Err(); err != nil {
+		stop()
+		return err
+	}
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", sObjID.Hex(), uuidSess.ID()))
 }
 
 func editQuestionPage(c *fiber.Ctx) error {
@@ -287,9 +352,17 @@ func editQuestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	data, err := processForm(string(c.Body()))
-	if err != nil {
+	var qi models.QuestionInput
+	if err := c.BodyParser(&qi); err != nil {
 		return err
+	}
+	var a []models.Answer
+	for _, v := range qi.Answers {
+		a = append(a, models.Answer{
+			ID:           primitive.NewObjectID(),
+			Title:        v,
+			Participants: []primitive.ObjectID{},
+		})
 	}
 	sess, uuidSess, _ := store.Get(c)
 	u, ok := sess.Get("user").(models.User)
@@ -297,50 +370,19 @@ func editQuestion(c *fiber.Ctx) error {
 		u = uuidSess.Get("user").(models.User)
 	}
 	cl := db.Database().Collection("sessions")
-	var s models.Session
 	ctx, stop := createCtx()
-	if err := cl.
-		FindOne(ctx, bson.M{"owner": u.ID, "_id": objID}).
-		Decode(&s); err != nil {
-		stop()
-		return err
-	}
-	stop()
-	var q *models.Question
-	for _, v := range s.Questions {
-		if v.ID.Hex() == qObjID.Hex() {
-			q = v
-			break
-		}
-	}
-	for k, v := range data {
-		if len(v) == 0 || v[0] == "" {
-			continue
-		}
-		if k == "answer" {
-			q.Answers = append(q.Answers, &models.Answer{
-				ID:    primitive.NewObjectID(),
-				Title: v[0],
-			})
-		} else if strings.Contains(k, "answer") {
-			i, err := strconv.Atoi(strings.Split(k, "-")[1])
-			if err != nil {
-				return err
-			}
-			q.Answers[i].Title = v[0]
-		} else if k == "title" {
-			q.Title = v[0]
-		}
-	}
-	ctx, stop = createCtx()
 	if err = cl.
-		FindOneAndReplace(ctx, bson.M{"_id": s.ID}, s).
+		FindOneAndUpdate(ctx,
+			bson.M{"_id": objID, "questions._id": qObjID, "owner": u.ID},
+			bson.M{"$set": bson.M{
+				"questions.$.title": qi.Title, "questions.$.answers": a,
+			}}).
 		Err(); err != nil {
 		stop()
 		return err
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", s.ID.Hex(), q.ID.Hex(), uuidSess.ID()))
+	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", objID.Hex(), qObjID.Hex(), uuidSess.ID()))
 }
 
 func deleteQuestion(c *fiber.Ctx) error {
@@ -416,12 +458,4 @@ func removeAnswerFromQuestion(c *fiber.Ctx) error {
 	}
 	stop()
 	return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", objID.Hex(), uuidSess.ID()))
-}
-
-func processForm(body string) (map[string][]string, error) {
-	vals, err := url.ParseQuery(body)
-	if err != nil {
-		return nil, err
-	}
-	return vals, err
 }

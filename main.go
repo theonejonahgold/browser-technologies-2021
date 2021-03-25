@@ -56,6 +56,9 @@ func main() {
 	engine.AddFunc("addOne", func(num int) int {
 		return num + 1
 	})
+	engine.AddFunc("subOne", func(num int) int {
+		return num - 1
+	})
 	engine.AddFunc("sessionState", func(state models.SessionState) string {
 		switch state {
 		case models.Creating:
@@ -76,7 +79,7 @@ func main() {
 	engine.AddFunc("currentQuestion", func(session models.Session) int {
 		for k, v := range session.Questions {
 			if v.ID == session.CurrentQuestion {
-				return k
+				return k + 1
 			}
 		}
 		return 0
@@ -89,6 +92,9 @@ func main() {
 			}
 		}
 		return totalAnswers
+	})
+	engine.AddFunc("validIndex", func(idx int, length int) bool {
+		return idx > -1 && idx < length
 	})
 	app := fiber.New(fiber.Config{
 		Views: engine,

@@ -40,6 +40,7 @@ func NewRouter(app *fiber.App, sessStore *isosession.IsoStore) {
 	router.Post("/quiz/edit/:id", editSession)
 	router.Post("/quiz/delete/:id", deleteSession)
 	router.Get("/quiz/:id", sessionPage)
+	router.Post("/quiz/:id/order/:oldPos/:newPos", changeQuestionOrder)
 	router.Get("/quiz/:id/results", sessionResults)
 	router.Get("/quiz/:id/question/create", newQuestionPage)
 	router.Post("/quiz/:id/question/create", saveNewQuestion)

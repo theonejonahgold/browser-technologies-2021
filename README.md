@@ -35,9 +35,9 @@ Goldhoot is a quiz platform to the likes of [Kahoot](https://kahoot.com). Create
 
 ## Enhancements
 
-- Have the quiz host and join flow completely work through web sockets so it's copmletely real time.
-- Add new answers to a question inline instead of refreshing the page when submitting using `<template>` tags.
-- Add confirmation dialog when deleting anything.
+- [ ] Have the quiz host and join flow completely work through web sockets so it's copmletely real time.
+- [x] Add new answers to a question inline instead of refreshing the page when submitting using `<template>` tags.
+- [x] Add confirmation dialog when deleting anything.
 
 ## Flowchart
 

@@ -4,12 +4,25 @@
 </header>
 
 <main>
-  <form action="/app/quiz/{{objectid session.iD}}/question/create" method="POST">
+  <form action="/app/quiz/{{objectid session.iD}}/question/create" method="POST"
+    enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="sessid" value="{{sessid}}">
     <label>
       Title
-      <input type="text" name="title">
+      <input autofocus type="text" name="title">
     </label>
-    <button>Save</button>
+    <fieldset data-answer-inputs class="invisible">
+      <legend>Answers</legend>
+      <label>
+        Answer 1:
+        <input type="text" name="answer">
+      </label>
+      <button type="button" class="large" data-add-answer>Add answer</button>
+    </fieldset>
+    <button class="large">Save</button>
   </form>
 </main>
+<template style="display: none;" data-answer-template>
+  {{> partials/new-answer}}
+</template>
+<script src="/static/scripts/quiz-question.js"></script>
