@@ -16,11 +16,11 @@ const (
 type SessionState int8
 
 type Session struct {
-	ID              primitive.ObjectID `json:"_id" bson:"_id"`
+	ID              primitive.ObjectID `json:"-" bson:"_id"`
 	Name            string             `json:"name" bson:"name"`
 	Owner           primitive.ObjectID `json:"owner" bson:"owner"`
-	QuestionTimer   int                `json:"question-timer" bson:"questionTimer"`
-	Participants    []*Participant     `json:"participants" bson:"participants"`
+	QuestionTimer   int                `json:"-" bson:"questionTimer"`
+	Participants    []*Participant     `json:"-" bson:"participants"`
 	Questions       []*Question        `json:"questions" bson:"questions"`
 	Code            string             `json:"code" bson:"code"`
 	State           SessionState       `json:"state" bson:"state"`

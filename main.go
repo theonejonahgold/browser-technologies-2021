@@ -76,6 +76,9 @@ func main() {
 	engine.AddFunc("statePlaying", func(state models.SessionState) bool {
 		return state != models.Creating && state != models.Finished
 	})
+	engine.AddFunc("owner", func(session models.Session, user models.User) bool {
+		return session.Owner == user.ID
+	})
 	engine.AddFunc("currentQuestion", func(session models.Session) int {
 		for k, v := range session.Questions {
 			if v.ID == session.CurrentQuestion {

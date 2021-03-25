@@ -1,18 +1,22 @@
 <li>
-  {{#if (stateCreating this.state)}}
-  <a href="/app/quiz/{{objectid this.iD}}?sessid={{sessid}}">
-    {{else}}
-    <a href="/app/quiz/{{objectid this.iD}}/results?sessid={{sessid}}">
-      {{/if}}
-      <h3>{{this.name}}</h3>
-      {{#if (stateCreating this.state)}}
-      <p>{{len this.questions}} questions</p>
-      {{else if (statePlaying this.state)}}
-      <p>At question {{currentQuestion this}}/{{len this.questions}}</p>
-      <p>{{len this.participants}} participants</p>
-      {{else}}
-      <p>{{totalAnswers this}} total answers</p>
-      <p>{{len this.participants}} participants</p>
-      {{/if}}
-    </a>
+  {{#if (stateFinished this.state)}}
+  <a href="/app/quiz/{{objectid this.iD}}/results?sessid={{sessid}}">
+    {{else if (stateCreating this.state)}}
+    <a href="/app/quiz/{{objectid this.iD}}?sessid={{sessid}}">
+      {{else if (owner this user)}}
+      <a href="/app/host/{{objectid this.iD}}?sessid={{sessid}}">
+        {{else}}
+        <a href="/app/join?session={{this.code}}&sessid={{sessid}}">
+          {{/if}}
+          <h3>{{this.name}}</h3>
+          {{#if (stateCreating this.state)}}
+          <p>{{len this.questions}} questions</p>
+          {{else if (statePlaying this.state)}}
+          <p>At question {{currentQuestion this}}/{{len this.questions}}</p>
+          <p>{{len this.participants}} participants</p>
+          {{else}}
+          <p>{{totalAnswers this}} total answers</p>
+          <p>{{len this.participants}} participants</p>
+          {{/if}}
+        </a>
 </li>

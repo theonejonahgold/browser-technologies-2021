@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,12 +23,13 @@ func NewRouter(app *fiber.App, sessStore *isosession.IsoStore) {
 	router := app.Group("/app")
 	router.Use(isLoggedIn)
 	router.Get("/", appPage)
+	router.Use("/ws", wsCheck)
+	router.Get("/ws", websocket.New(ws, websocket.Config{
+		Subprotocols: []string{string(joinProtocol), string(hostProtocol)},
+		Origins:      []string{"https://browser-tech-goldhoot.herokuapp.com", "http://browser-tech-goldhoot.herokuapp.com", "http://localhost:3000"},
+	}))
 	router.Get("/join", join)
-	router.Get("/join/waiting", joinWaitingRoom)
-	router.Get("/join/countdown", joinCountdown)
-	router.Get("/join/answer", joinAnswerPage)
-	router.Post("/join/answer", joinAnswerQuestion)
-	router.Get("/join/question-results", joinQResultsPage)
+	router.Post("/join", joinAnswerQuestion)
 	router.Get("/host/start", startSession)
 	router.Get("/host/waiting", hostWaitingRoom)
 	router.Get("/host/countdown", hostCountdown)

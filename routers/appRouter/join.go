@@ -17,14 +17,18 @@ func joinRouter(c *fiber.Ctx) error {
 	sess, uuidSess, _ := store.Get(c)
 	sObjID, ok := sess.Get("current-joining").(primitive.ObjectID)
 	if !ok {
-		sObjID = uuidSess.Get("current-hosting").(primitive.ObjectID)
+		sObjID = uuidSess.Get("current-joining").(primitive.ObjectID)
+	}
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
 	}
 	var s models.Session
 	ctx, stop := createCtx()
 	if err := db.
 		Database().
 		Collection("sessions").
-		FindOne(ctx, bson.M{"_id": sObjID}).
+		FindOne(ctx, bson.M{"_id": sObjID, "participants.user": u.ID}).
 		Decode(&s); err != nil {
 		stop()
 		return err
@@ -32,13 +36,13 @@ func joinRouter(c *fiber.Ctx) error {
 	stop()
 	switch s.State {
 	case models.Waiting:
-		return c.Redirect(fmt.Sprintf("/app/join/waiting?sessid=%v", uuidSess.ID()))
+		return joinWaitingRoom(c)
 	case models.QuestionCountdown:
-		return c.Redirect(fmt.Sprintf("/app/join/countdown?sessid=%v", uuidSess.ID()))
+		return joinCountdown(c)
 	case models.QuestionOpen:
-		return c.Redirect(fmt.Sprintf("/app/join/answer?sessid=%v", uuidSess.ID()))
+		return joinAnswerPage(c)
 	case models.QuestionClosed:
-		return c.Redirect(fmt.Sprintf("/app/join/question-results?sessid=%v", uuidSess.ID()))
+		return joinQResultsPage(c)
 	case models.Finished:
 		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	default:
@@ -213,6 +217,9 @@ func joinAnswerPage(c *fiber.Ctx) error {
 		Decode(&s); err != nil {
 		return err
 	}
+	if s.State != models.QuestionOpen {
+		return c.Redirect(fmt.Sprintf("/app/join?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
+	}
 	u, _ := sess.Get("user").(models.User)
 	var q *models.Question
 	var answered bool
@@ -270,6 +277,9 @@ func joinAnswerQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
+	if s.State != models.QuestionOpen {
+		return c.Redirect(fmt.Sprintf("/app/join?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
+	}
 	var idx int
 	for k, q := range s.Questions {
 		if q.ID == s.CurrentQuestion {

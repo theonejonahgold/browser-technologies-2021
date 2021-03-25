@@ -11,7 +11,11 @@
 </head>
 
 <body>
-  {{embed}}
+  <div data-content>
+    {{embed}}
+  </div>
+  {{> partials/host-templates}}
+  <script src="/static/scripts/host.js"></script>
 </body>
 
 </html>

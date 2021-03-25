@@ -1,0 +1,48 @@
+<template style="display:none;" data-waiting>
+  <header>
+    <h1>Waiting</h1>
+    <h2 data-session-name></h2>
+  </header>
+  <main>
+    <p data-participants>0 people have joined</p>
+    <label class="inline">Code: <input type="text" readonly value=""></label>
+    <button class="large" data-start>Start quiz</button>
+  </main>
+</template>
+<template style="display:none;" data-answer>
+  <header>
+    <h1>Answer now</h1>
+    <h2 data-question-title></h2>
+  </header>
+  <main>
+    <p data-progress>0 of 0 participants answered</p>
+  </main>
+</template>
+<template style="display:none;" data-countdown>
+  <header>
+    <h1>Next question</h1>
+    <h2 data-question-title></h2>
+  </header>
+  <main>
+    <p class="countdown">3</p>
+    <p class="countdown">2</p>
+    <p class="countdown">1</p>
+  </main>
+</template>
+<template style="display:none;" data-results>
+  <header>
+    <h1>Question results</h1>
+    <h2 data-question-title></h2>
+  </header>
+  <main>
+    <template style="display:none;" data-answer-result>
+      <label>
+        answer: 0
+        <meter max="" value="">
+          0 people chose thing
+        </meter>
+      </label>
+    </template>
+    <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Go to next question</a>
+  </main>
+</template>
