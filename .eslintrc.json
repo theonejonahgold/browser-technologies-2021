@@ -1,0 +1,31 @@
+{
+  "root": true,
+  "parserOptions": {
+    "sourceType": "script",
+    "ecmaVersion": 2020
+  },
+  "env": {
+    "browser": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "prettier"
+  ],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "arrowParens": "avoid",
+        "semi": false,
+        "tabWidth": 2,
+        "singleQuote": true,
+        "trailingComma": "es5"
+      }
+    ],
+    "no-empty": "off",
+    "no-unused-vars": "off"
+  }
+}

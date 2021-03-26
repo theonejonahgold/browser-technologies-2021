@@ -2,7 +2,7 @@
 
 window.addEventListener('load', () => {
   prepareContent()
-  joinWS()
+  hostWS()
 })
 
 function prepareContent() {
@@ -10,14 +10,14 @@ function prepareContent() {
   contentContainer.innerHTML = '<p>Loading...</p>'
 }
 
-function joinWS() {
+function hostWS() {
   const host = window.location.hostname
   const port = window.location.port
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   const entries = splitQuery()
   const socket = new WebSocket(
     `${wsProtocol}//${host}:${port}/app/ws?sessid=${entries.sessid}&session=${entries.session}`,
-    'join'
+    'host'
   )
   socket.addEventListener('close', () => console.log('connection closed'))
   socket.addEventListener('message', e => {
@@ -25,33 +25,41 @@ function joinWS() {
     switch (message.type) {
       case 'joined':
         renderToDOM(renderWaitingRoom(message))
+        document
+          .querySelector('[data-content] [data-start]')
+          .addEventListener('click', () => {
+            const newMessage = {
+              type: 'start',
+              sessid: message.sessid,
+              quizid: message.quizid,
+            }
+            socket.send(JSON.stringify(newMessage))
+          })
+        break
+      case 'participant':
+        updateWaitingRoom(message)
         break
       case 'countdown':
         renderToDOM(renderCountdown(message))
         break
       case 'open':
         renderToDOM(renderAnswer(message))
+        break
+      case 'answered':
+        updateAnsweredAmt(message)
+        break
+      case 'results':
+        renderToDOM(renderResult(message))
         document
-          .querySelector('[data-content] [data-answer-form]')
-          .addEventListener('submit', function (e) {
-            e.preventDefault()
-            const formData = new FormData(this)
-            const answer = formData.get('answer')
-            const sessid = formData.get('sessid')
+          .querySelector('[data-content] [data-next]')
+          .addEventListener('click', () => {
             const newMessage = {
-              type: 'answer',
-              sessid,
-              answer,
+              type: 'next',
+              sessid: message.sessid,
               quizid: message.quizid,
             }
             socket.send(JSON.stringify(newMessage))
           })
-        break
-      case 'confirmed':
-        renderToDOM(renderAnswered(message))
-        break
-      case 'results':
-        renderToDOM(renderResult(message))
         break
       case 'finished':
         socket.close()
@@ -61,13 +69,22 @@ function joinWS() {
   })
 }
 
-function renderWaitingRoom({ quiz, host }) {
+function renderWaitingRoom({ quiz }) {
   const content = queryTemplateContent('waiting')
   const heading = content.querySelector('[data-quiz-name]')
   heading.textContent = quiz.name
-  const text = content.querySelector('[data-quiz-host]')
-  text.textContent = text.textContent.replace('{}', host)
+  const joinedText = content.querySelector('[data-participants]')
+  joinedText.textContent = `0 people have joined`
+  const codeInput = content.querySelector('input')
+  codeInput.value = quiz.code
   return content
+}
+
+function updateWaitingRoom({ amount }) {
+  const joinedText = document.querySelector(
+    '[data-content] [data-participants]'
+  )
+  joinedText.textContent = `${amount} people have joined`
 }
 
 function renderCountdown({ question, last }) {
@@ -80,34 +97,18 @@ function renderCountdown({ question, last }) {
   return content
 }
 
-function renderAnswer({ question, sessid }) {
+function renderAnswer({ question, participantAmount }) {
   const content = queryTemplateContent('answer')
   const title = content.querySelector('[data-question-title]')
   title.textContent = question.title
-  const sessionInput = content.querySelector('[data-sessid]')
-  sessionInput.value = sessid
-  const form = content.querySelector('[data-answer-form]')
-  const answerTemplate = content.querySelector('[data-answer-input]')
-  question.answers.forEach(answer => {
-    const answerInput = answerTemplate.content.cloneNode(true)
-    const input = answerInput.querySelector('input')
-    const label = answerInput.querySelector('label')
-    input.id = answer.title
-    input.value = answer._id
-    label.setAttribute('for', answer.title)
-    label.textContent = answer.title
-    form.appendChild(answerInput)
-  })
+  const progress = content.querySelector('[data-progress]')
+  progress.textContent = `0 of ${participantAmount} participants answered`
   return content
 }
 
-function renderAnswered({ answer, question }) {
-  const content = queryTemplateContent('answered')
-  const title = content.querySelector('[data-question-title]')
-  title.textContent = question.title
-  const chosenAnswer = content.querySelector('[data-chosen-answer]')
-  chosenAnswer.textContent = chosenAnswer.textContent.replace('{}', answer)
-  return content
+function updateAnsweredAmt({ amount, participantAmount }) {
+  const progress = document.querySelector('[data-content] [data-progress]')
+  progress.textContent = `${amount} of ${participantAmount} participants answered`
 }
 
 function renderResult({ question, participantAmount, last }) {
@@ -117,6 +118,9 @@ function renderResult({ question, participantAmount, last }) {
   else heading.textContent = 'Question results'
   const title = content.querySelector('[data-question-title]')
   title.textContent = question.title
+  const nextButton = content.querySelector('[data-next]')
+  if (last) nextButton.textContent = 'Finish quiz'
+  else nextButton.textContent = 'Next question'
   const answerTemplate = content.querySelector('[data-answer-result]')
   const main = content.querySelector('main')
   question.answers.forEach(answer => {
@@ -138,7 +142,7 @@ function renderResult({ question, participantAmount, last }) {
       answer.participants.length
     )
     meter.textContent = meter.textContent.replace('{answer}', answer.title)
-    main.appendChild(answerResult)
+    main.insertBefore(answerResult, nextButton)
   })
   return content
 }

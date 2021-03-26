@@ -22,8 +22,13 @@
   <noscript>
     <meta http-equiv="refresh" content="2; url=/app/join?session={{session.code}}&sessid={{sessid}}">
   </noscript>
-  <h1>{{question.title}}</h1>
-  <p>Your answer was: {{answer.title}}</p>
-  <p>Waiting for results to come in...</p>
+  <header>
+    <h1>Waiting</h1>
+    <h2>{{question.title}}</h2>
+  </header>
+  <main>
+    <p>Your answer was: {{answer.title}}</p>
+    <p>Waiting for results to come in...</p>
+  </main>
 </main>
 {{/unless}}

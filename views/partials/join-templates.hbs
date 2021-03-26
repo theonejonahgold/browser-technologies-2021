@@ -4,16 +4,18 @@
     <h2 data-quiz-name></h2>
   </header>
   <main>
-    <p data-quiz-host>Waiting for to start the quiz</p>
+    <p data-quiz-host>Waiting for {} to start the quiz</p>
   </main>
 </template>
 <template style="display:none;" data-countdown>
   <header>
-    <h1>Next question</h1>
+    <h1></h1>
     <h2 data-question-title></h2>
   </header>
   <main>
-    <p>5... 4... 3... 2... 1...</p>
+    <p class="countdown">3</p>
+    <p class="countdown">2</p>
+    <p class="countdown">1</p>
   </main>
 </template>
 <template style="display:none;" data-answer>
@@ -23,7 +25,7 @@
   </header>
   <main>
     <form data-answer-form action="/app/join" method="POST">
-      <input type="hidden" name="sessid" value="">
+      <input data-sessid type="hidden" name="sessid" value="">
       <fieldset>
         <legend>Possible answers</legend>
         <template style="display:none;" data-answer-input>
@@ -31,27 +33,31 @@
           <label for=""></label>
         </template>
       </fieldset>
-      <input type="hidden" name="userid" value="">
       <button class="large">Send in answer</button>
     </form>
   </main>
 </template>
 <template style="display:none;" data-answered>
-  <h1 data-question-title></h1>
-  <p data-chosen-answer>Your answer was: </p>
-  <p>Waiting for results to come in...</p>
+  <header>
+    <h1>Waiting</h1>
+    <h2 data-question-title></h2>
+  </header>
+  <main>
+    <p data-chosen-answer>Your chose: {}</p>
+    <p>Waiting for results to come in...</p>
+  </main>
 </template>
 <template style="display:none;" data-result>
   <header>
-    <h1>Question results</h1>
+    <h1></h1>
     <h2 data-question-title></h2>
   </header>
   <main>
     <template style="display:none;" data-answer-result>
       <label>
-        answer: 0
+        {answer}: {amount}
         <meter max="" value="">
-          0 people chose thing
+          {amount} people chose {answer}
         </meter>
       </label>
     </template>

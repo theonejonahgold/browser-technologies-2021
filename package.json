@@ -1,0 +1,28 @@
+{
+  "name": "bt",
+  "version": "1.0.0",
+  "description": "[Link to website](https://browser-tech-goldhoot.herokuapp.com/)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theonejonahgold/browser-technologies-2021.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theonejonahgold/browser-technologies-2021/issues"
+  },
+  "homepage": "https://github.com/theonejonahgold/browser-technologies-2021#readme",
+  "devDependencies": {
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1"
+  }
+}

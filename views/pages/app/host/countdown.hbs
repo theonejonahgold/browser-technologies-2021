@@ -2,7 +2,11 @@
   <meta http-equiv="refresh" content="5; url=/app/host/{{objectid session.iD}}?sessid={{sessid}}">
 </noscript>
 <header>
+  {{#if last}}
+  <h1>Last question</h1>
+  {{else}}
   <h1>Next question</h1>
+  {{/if}}
   <h2>{{question.title}}</h2>
 </header>
 <main>

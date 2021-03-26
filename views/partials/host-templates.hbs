@@ -1,7 +1,7 @@
 <template style="display:none;" data-waiting>
   <header>
     <h1>Waiting</h1>
-    <h2 data-session-name></h2>
+    <h2 data-quiz-name></h2>
   </header>
   <main>
     <p data-participants>0 people have joined</p>
@@ -9,18 +9,9 @@
     <button class="large" data-start>Start quiz</button>
   </main>
 </template>
-<template style="display:none;" data-answer>
-  <header>
-    <h1>Answer now</h1>
-    <h2 data-question-title></h2>
-  </header>
-  <main>
-    <p data-progress>0 of 0 participants answered</p>
-  </main>
-</template>
 <template style="display:none;" data-countdown>
   <header>
-    <h1>Next question</h1>
+    <h1></h1>
     <h2 data-question-title></h2>
   </header>
   <main>
@@ -29,20 +20,29 @@
     <p class="countdown">1</p>
   </main>
 </template>
-<template style="display:none;" data-results>
+<template style="display:none;" data-answer>
   <header>
-    <h1>Question results</h1>
+    <h1>Answer now</h1>
+    <h2 data-question-title></h2>
+  </header>
+  <main>
+    <p data-progress>{} of {} participants answered</p>
+  </main>
+</template>
+<template style="display:none;" data-result>
+  <header>
+    <h1>{}</h1>
     <h2 data-question-title></h2>
   </header>
   <main>
     <template style="display:none;" data-answer-result>
       <label>
-        answer: 0
+        {answer}: {amount}
         <meter max="" value="">
-          0 people chose thing
+          {amount} people chose {answer}
         </meter>
       </label>
     </template>
-    <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Go to next question</a>
+    <button class="large" data-next></button>
   </main>
 </template>

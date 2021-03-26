@@ -208,7 +208,7 @@ func saveNewQuestion(c *fiber.Ctx) error {
 			Participants: []primitive.ObjectID{},
 		})
 	}
-	fmt.Printf("%+v", qi.Answers)
+	fmt.Printf("%+v\n", qi.Answers)
 	id := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {

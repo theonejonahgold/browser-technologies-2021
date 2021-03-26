@@ -1,10 +1,18 @@
 <header>
+  {{#if last}}
+  <h1>Last question results</h1>
+  {{else}}
   <h1>Question results</h1>
+  {{/if}}
   <h2>{{question.title}}</h2>
 </header>
 <main>
   {{#each question.answers}}
   {{> partials/answer-result}}
   {{/each}}
-  <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Go to next question</a>
+  {{#if last}}
+  <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Finish quiz</a>
+  {{else}}
+  <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Next question</a>
+  {{/if}}
 </main>

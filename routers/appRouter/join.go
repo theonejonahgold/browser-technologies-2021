@@ -185,8 +185,10 @@ func joinCountdown(c *fiber.Ctx) error {
 		return err
 	}
 	var q *models.Question
-	for _, v := range s.Questions {
+	var last bool
+	for i, v := range s.Questions {
 		if s.CurrentQuestion == v.ID {
+			last = i == len(s.Questions)-1
 			q = v
 			break
 		}
@@ -195,6 +197,7 @@ func joinCountdown(c *fiber.Ctx) error {
 		"session":  s,
 		"question": q,
 		"sessid":   uuidSess.ID(),
+		"last":     last,
 	}, "layouts/join")
 }
 
@@ -248,18 +251,20 @@ aLoop:
 
 func joinAnswerQuestion(c *fiber.Ctx) error {
 	var body struct {
-		UserID string `json:"userid"`
 		Answer string `json:"answer"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return err
 	}
-	uID, _ := primitive.ObjectIDFromHex(body.UserID)
 	aID, _ := primitive.ObjectIDFromHex(body.Answer)
 	sess, uuidSess, _ := store.Get(c)
 	sID, ok := sess.Get("current-joining").(primitive.ObjectID)
 	if !ok {
 		sID = uuidSess.Get("current-joining").(primitive.ObjectID)
+	}
+	u, ok := sess.Get("user").(models.User)
+	if !ok {
+		u = uuidSess.Get("user").(models.User)
 	}
 	ctx, stop := createCtx()
 	var s models.Session
@@ -269,7 +274,7 @@ func joinAnswerQuestion(c *fiber.Ctx) error {
 		Collection("sessions").
 		FindOne(ctx, bson.M{
 			"_id":                   sID,
-			"participants.user":     uID,
+			"participants.user":     u.ID,
 			"questions.answers._id": aID,
 		}).
 		Decode(&s); err != nil {
@@ -286,7 +291,7 @@ func joinAnswerQuestion(c *fiber.Ctx) error {
 			idx = k
 			for _, a := range q.Answers {
 				if a.ID == aID {
-					a.Participants = append(a.Participants, uID)
+					a.Participants = append(a.Participants, u.ID)
 					break
 				}
 			}
@@ -306,7 +311,7 @@ func joinAnswerQuestion(c *fiber.Ctx) error {
 		Collection("sessions").
 		FindOneAndUpdate(ctx, bson.M{
 			"_id":               s.ID,
-			"participants.user": uID,
+			"participants.user": u.ID,
 		}, bson.M{
 			"$set": bson.M{
 				"questions": s.Questions,
@@ -338,9 +343,11 @@ func joinQResultsPage(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
+	var last bool
 	var currQ models.Question
-	for _, q := range s.Questions {
+	for i, q := range s.Questions {
 		if q.ID == s.CurrentQuestion {
+			last = i == len(s.Questions)-1
 			currQ = *q
 		}
 	}
@@ -348,5 +355,6 @@ func joinQResultsPage(c *fiber.Ctx) error {
 		"session":  s,
 		"question": currQ,
 		"sessid":   uuidSess.ID(),
+		"last":     last,
 	}, "layouts/join")
 }

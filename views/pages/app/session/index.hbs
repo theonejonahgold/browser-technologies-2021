@@ -4,7 +4,7 @@
   <h2>{{session.name}}</h2>
 </header>
 <main>
-  <a class="button large" href="/app/host/{{objectid session.iD}}?sessid={{sessid}}">Open quiz doors</a>
+  <a class="button large" href="/app/host?session={{objectid session.iD}}&sessid={{sessid}}">Open quiz doors</a>
   <section>
     <header>
       <h1>Questions ({{len session.questions}})</h1>

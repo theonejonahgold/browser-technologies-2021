@@ -81,7 +81,10 @@ func (s *UUIDSession) Set(key string, val interface{}) {
 }
 
 func (s *UUIDSession) Delete(key string) {
-	delete(s.data, key)
+	_, ok := s.data[key]
+	if ok {
+		delete(s.data, key)
+	}
 }
 
 func (s *UUIDSession) Destroy() error {

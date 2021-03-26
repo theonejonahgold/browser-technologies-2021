@@ -31,13 +31,13 @@ func hostRouter(c *fiber.Ctx) error {
 	stop()
 	switch s.State {
 	case models.Waiting:
-		return c.Redirect(fmt.Sprintf("/app/host/waiting?sessid=%v", uuidSess.ID()))
+		return hostWaitingRoom(c)
 	case models.QuestionCountdown:
-		return c.Redirect(fmt.Sprintf("/app/host/countdown?sessid=%v", uuidSess.ID()))
+		return hostCountdown(c)
 	case models.QuestionOpen:
-		return c.Redirect(fmt.Sprintf("/app/host/answer?sessid=%v", uuidSess.ID()))
+		return hostAnswerPage(c)
 	case models.QuestionClosed:
-		return c.Redirect(fmt.Sprintf("/app/host/question-results?sessid=%v", uuidSess.ID()))
+		return hostQResults(c)
 	case models.Finished:
 		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	default:
@@ -46,7 +46,7 @@ func hostRouter(c *fiber.Ctx) error {
 }
 
 func host(c *fiber.Ctx) error {
-	id, err := primitive.ObjectIDFromHex(c.Params("id"))
+	id, err := primitive.ObjectIDFromHex(c.Query("session"))
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func host(c *fiber.Ctx) error {
 	sess.Set("current-hosting", s.ID)
 	uuidSess.Set("current-hosting", s.ID)
 	if s.State != models.Creating && s.State != models.Waiting {
-		return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
+		return c.Redirect(fmt.Sprintf("/app/host?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	}
 	ctx, stop = createCtx()
 	if err := db.
@@ -95,7 +95,7 @@ func host(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
-	return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
+	return c.Redirect(fmt.Sprintf("/app/host?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
 }
 
 func hostWaitingRoom(c *fiber.Ctx) error {
@@ -183,9 +183,11 @@ func hostCountdown(c *fiber.Ctx) error {
 		Decode(&s); err != nil {
 		return err
 	}
+	var last bool
 	var q models.Question
-	for _, v := range s.Questions {
+	for i, v := range s.Questions {
 		if s.CurrentQuestion == v.ID {
+			last = i == len(s.Questions)-1
 			q = *v
 			break
 		}
@@ -194,6 +196,7 @@ func hostCountdown(c *fiber.Ctx) error {
 		"session":  s,
 		"question": q,
 		"sessid":   uuidSess.ID(),
+		"last":     last,
 	}, "layouts/host")
 }
 
@@ -248,9 +251,11 @@ func hostQResults(c *fiber.Ctx) error {
 		Decode(&s); err != nil {
 		return err
 	}
+	var last bool
 	var currQ models.Question
-	for _, q := range s.Questions {
+	for i, q := range s.Questions {
 		if q.ID == s.CurrentQuestion {
+			last = i == len(s.Questions)-1
 			currQ = *q
 		}
 	}
@@ -258,6 +263,7 @@ func hostQResults(c *fiber.Ctx) error {
 		"session":  s,
 		"question": currQ,
 		"sessid":   uuidSess.ID(),
+		"last":     last,
 	}, "layouts/host")
 }
 
@@ -320,7 +326,7 @@ func changeStateAfterCountdown(s models.Session) {
 			bson.M{"$set": bson.M{"state": models.QuestionOpen}},
 			options.FindOneAndUpdate().SetReturnDocument(options.After)).
 		Err(); err != nil {
-		fmt.Printf("error while updating countdown state: %v", err)
+		fmt.Printf("error while updating countdown state: %v\n", err)
 		stop()
 	}
 	stop()
@@ -341,7 +347,7 @@ func changeStateAfterQTimeElapsed(s models.Session) {
 			bson.M{"_id": s.ID, "state": models.QuestionOpen, "current": s.CurrentQuestion},
 			bson.M{"$set": bson.M{"state": models.QuestionClosed}}).
 		Err(); err != nil {
-		fmt.Printf("error while updating question state: %v", err)
+		fmt.Printf("error while updating question state: %v\n", err)
 		stop()
 	}
 	stop()

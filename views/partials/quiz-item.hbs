@@ -4,7 +4,7 @@
     {{else if (stateCreating this.state)}}
     <a href="/app/quiz/{{objectid this.iD}}?sessid={{sessid}}">
       {{else if (owner this user)}}
-      <a href="/app/host/{{objectid this.iD}}?sessid={{sessid}}">
+      <a href="/app/host?session={{objectid this.iD}}&sessid={{sessid}}">
         {{else}}
         <a href="/app/join?session={{this.code}}&sessid={{sessid}}">
           {{/if}}
