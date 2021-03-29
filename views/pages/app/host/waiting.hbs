@@ -7,7 +7,7 @@
 </header>
 
 <main>
-  <p>{{len session.participants}} people have joined</p>
+  <p class="large center">{{len session.participants}} people have joined</p>
   <label class="inline">Code: <input type="text" readonly value={{session.code}}></label>
   <a class="button large" href="/app/host/start?sessid={{sessid}}">Start quiz</a>
 </main>

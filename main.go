@@ -104,6 +104,12 @@ func main() {
 	engine.AddFunc("validIndex", func(idx int, length int) bool {
 		return idx > -1 && idx < length
 	})
+	engine.AddFunc("percentDiff", func(sub int, total int) string {
+		fSub := float64(sub)
+		fTotal := float64(total)
+		percent := fSub / fTotal * float64(100)
+		return fmt.Sprintf("%f%%", percent)
+	})
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})

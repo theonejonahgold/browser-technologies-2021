@@ -316,7 +316,7 @@ func nextQuestion(c *fiber.Ctx) error {
 }
 
 func changeStateAfterCountdown(s models.Session) {
-	<-time.After(3 * time.Second)
+	time.Sleep(3 * time.Second)
 	ctx, stop := createCtx()
 	if err := db.
 		Database().
@@ -337,7 +337,7 @@ func changeStateAfterQTimeElapsed(s models.Session) {
 	if s.QuestionTimer == 0 {
 		return
 	}
-	<-time.After(time.Duration(s.QuestionTimer) * time.Second)
+	time.Sleep(time.Duration(s.QuestionTimer) * time.Second)
 	ctx, stop := createCtx()
 	if err := db.
 		Database().

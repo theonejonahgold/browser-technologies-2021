@@ -60,6 +60,7 @@ type participantMessage struct {
 type countdownMessage struct {
 	wsMessage
 	CurrentQuestion models.Question `json:"question"`
+	Last            bool            `json:"last"`
 }
 
 type openMessage struct {
@@ -67,6 +68,7 @@ type openMessage struct {
 	CurrentQuestion models.Question `json:"question"`
 	TimeLimit       int             `json:"timeLimit"`
 	AmtPart         int             `json:"participantAmount"`
+	Last            bool            `json:"last"`
 }
 
 type answerMessage struct {
@@ -152,9 +154,13 @@ func joinWS(c *websocket.Conn) {
 				message.Type = countdown
 				message.Session = s.ID
 				message.SessID = sessID
-				for _, v := range s.Questions {
+				for i, v := range s.Questions {
 					if v.ID == s.CurrentQuestion {
 						message.CurrentQuestion = *v
+						if i == len(s.Questions)-1 {
+							message.Last = true
+						}
+						break
 					}
 				}
 				if err = c.WriteJSON(message); err != nil {
@@ -166,9 +172,13 @@ func joinWS(c *websocket.Conn) {
 				message.Session = s.ID
 				message.SessID = sessID
 				message.TimeLimit = s.QuestionTimer
-				for _, v := range s.Questions {
+				for i, v := range s.Questions {
 					if v.ID == s.CurrentQuestion {
 						message.CurrentQuestion = *v
+						if i == len(s.Questions)-1 {
+							message.Last = true
+						}
+						break
 					}
 				}
 				if err = c.WriteJSON(message); err != nil {
@@ -180,9 +190,13 @@ func joinWS(c *websocket.Conn) {
 				message.Session = s.ID
 				message.SessID = sessID
 				message.AmtPart = len(s.Participants)
-				for _, v := range s.Questions {
+				for i, v := range s.Questions {
 					if v.ID == s.CurrentQuestion {
 						message.Question = *v
+						if i == len(s.Questions)-1 {
+							message.Last = true
+						}
+						break
 					}
 				}
 				if err = c.WriteJSON(message); err != nil {
@@ -232,9 +246,12 @@ func joinWS(c *websocket.Conn) {
 		message.Type = countdown
 		message.Session = s.ID
 		message.SessID = sessID
-		for _, v := range s.Questions {
+		for i, v := range s.Questions {
 			if v.ID == s.CurrentQuestion {
 				message.CurrentQuestion = *v
+			}
+			if i == len(s.Questions)-1 {
+				message.Last = true
 			}
 		}
 		if err = c.WriteJSON(message); err != nil {
@@ -247,9 +264,13 @@ func joinWS(c *websocket.Conn) {
 		message.SessID = sessID
 		message.TimeLimit = s.QuestionTimer
 		message.AmtPart = len(s.Participants)
-		for _, v := range s.Questions {
+		for i, v := range s.Questions {
 			if v.ID == s.CurrentQuestion {
 				message.CurrentQuestion = *v
+				if i == len(s.Questions)-1 {
+					message.Last = true
+				}
+				break
 			}
 		}
 		if err = c.WriteJSON(message); err != nil {
@@ -267,6 +288,7 @@ func joinWS(c *websocket.Conn) {
 				if i == len(s.Questions)-1 {
 					message.Last = true
 				}
+				break
 			}
 		}
 		if err = c.WriteJSON(message); err != nil {

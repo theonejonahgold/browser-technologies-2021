@@ -4,7 +4,7 @@
     <h2 data-quiz-name></h2>
   </header>
   <main>
-    <p data-quiz-host>Waiting for {} to start the quiz</p>
+    <p class="center" data-quiz-host>Waiting for {} to start the quiz</p>
   </main>
 </template>
 <template style="display:none;" data-countdown>
@@ -56,9 +56,12 @@
   </header>
   <main>
     <template style="display:none;" data-answer-result>
-      <label>
-        {answer}: {amount}
-        <meter max="" value="">
+      <label class="result">
+        <span>
+          {}
+          <span>{}</span>
+        </span>
+        <meter class="meter" max="" value="">
           {amount} people chose {answer}
         </meter>
       </label>

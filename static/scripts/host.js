@@ -132,15 +132,17 @@ function renderResult({ question, participantAmount, last }) {
   const main = content.querySelector('main')
   question.answers.forEach(answer => {
     const answerResult = answerTemplate.content.cloneNode(true)
-    const label = answerResult.querySelector('label')
-    label.childNodes[0].nodeValue = label.childNodes[0].nodeValue.replace(
-      '{answer}',
+    const answerSpan = answerResult.querySelector('label > span')
+    const amountSpan = answerResult.querySelector('label > span > span')
+    answerSpan.childNodes[0].nodeValue = answerSpan.childNodes[0].nodeValue.replace(
+      '{}',
       answer.title
     )
-    label.childNodes[0].nodeValue = label.childNodes[0].nodeValue.replace(
-      '{amount}',
-      answer.participants.length
+    answerSpan.style.setProperty(
+      '--size',
+      (answer.participants.length / participantAmount) * 100 + '%'
     )
+    amountSpan.innerHTML = answer.participants.length
     const meter = answerResult.querySelector('meter')
     meter.max = participantAmount
     meter.value = answer.participants.length

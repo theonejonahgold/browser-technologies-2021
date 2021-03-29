@@ -4,7 +4,7 @@
     <h2 data-quiz-name></h2>
   </header>
   <main>
-    <p data-participants>0 people have joined</p>
+    <p class="large center" data-participants>0 people have joined</p>
     <label class="inline">Code: <input type="text" readonly value=""></label>
     <button class="large" data-start>Start quiz</button>
   </main>
@@ -26,8 +26,8 @@
     <h2 data-question-title></h2>
   </header>
   <main>
-    <p data-timer></p>
-    <p data-progress>{} of {} participants answered</p>
+    <p class="center" data-timer></p>
+    <p class="center" data-progress>{} of {} participants answered</p>
   </main>
 </template>
 <template style="display:none;" data-result>
@@ -37,9 +37,12 @@
   </header>
   <main>
     <template style="display:none;" data-answer-result>
-      <label>
-        {answer}: {amount}
-        <meter max="" value="">
+      <label class="result">
+        <span>
+          {}
+          <span>{}</span>
+        </span>
+        <meter class="meter" max="" value="">
           {amount} people chose {answer}
         </meter>
       </label>
