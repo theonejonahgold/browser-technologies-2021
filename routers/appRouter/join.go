@@ -60,7 +60,7 @@ func join(c *fiber.Ctx) error {
 		return joinRouter(c)
 	}
 	var joinForm struct {
-		Session string `json:"session"`
+		Session string `form:"session" json:"session"`
 	}
 	if err := c.QueryParser(&joinForm); err != nil {
 		return err
@@ -125,6 +125,7 @@ func join(c *fiber.Ctx) error {
 	}
 	stop()
 	sess.Set("current-joining", s.ID)
+	uuidSess.Set("current-joining", s.ID)
 	return c.Redirect(fmt.Sprintf("/app/join?session=%v&sessid=%v", s.Code, uuidSess.ID()))
 }
 

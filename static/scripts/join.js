@@ -31,6 +31,7 @@ function joinWS() {
         break
       case 'open':
         renderToDOM(renderAnswer(message))
+        updateCountdown(message)
         document
           .querySelector('[data-content] [data-answer-form]')
           .addEventListener('submit', function (e) {
@@ -80,13 +81,15 @@ function renderCountdown({ question, last }) {
   return content
 }
 
-function renderAnswer({ question, sessid }) {
+function renderAnswer({ question, sessid, timeLimit }) {
   const content = queryTemplateContent('answer')
   const title = content.querySelector('[data-question-title]')
   title.textContent = question.title
   const sessionInput = content.querySelector('[data-sessid]')
   sessionInput.value = sessid
-  const form = content.querySelector('[data-answer-form]')
+  const timer = content.querySelector('[data-timer]')
+  timer.textContent = `${timeLimit} seconds left`
+  const fieldset = content.querySelector('[data-answer-form] fieldset')
   const answerTemplate = content.querySelector('[data-answer-input]')
   question.answers.forEach(answer => {
     const answerInput = answerTemplate.content.cloneNode(true)
@@ -96,7 +99,7 @@ function renderAnswer({ question, sessid }) {
     input.value = answer._id
     label.setAttribute('for', answer.title)
     label.textContent = answer.title
-    form.appendChild(answerInput)
+    fieldset.appendChild(answerInput)
   })
   return content
 }
@@ -153,4 +156,16 @@ function queryTemplateContent(name) {
   const template = document.querySelector(`[data-${name}]`)
   const content = template.content.cloneNode(true)
   return content
+}
+
+function updateCountdown({ timeLimit }) {
+  let currentTime = timeLimit
+  const interval = setInterval(() => {
+    const timer = document.querySelector('[data-timer]')
+    if (!timer || currentTime === 0) {
+      clearInterval(interval)
+      return
+    }
+    timer.textContent = `${--currentTime} seconds left`
+  }, 1000)
 }

@@ -17,9 +17,9 @@
         Answer {{addOne (len question.answers)}}:
         <input autofocus type="text" name="answer">
       </label>
-      <button type="button" class="large invisible" data-add-answer>Add answer</button>
+      <button type="submit" name="submit" value="add" class="large" data-add-answer>Add answer</button>
     </fieldset>
-    <button class="large">Save</button>
+    <button type="submit" name="submit" value="save" class="large">Save</button>
   </form>
 </main>
 <template style="display: none;" data-answer-template>

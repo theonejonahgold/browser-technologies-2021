@@ -1,6 +1,13 @@
 {{#unless answered}}
+<noscript>
+  <meta http-equiv="refresh"
+    content="{{session.questionTimer}}; url=/app/join?session={{session.code}}&sessid={{sessid}}">
+</noscript>
 <header>
   <h1>Answer now</h1>
+  {{#if (nonZero session.questionTimer)}}
+  <p>{{session.questionTimer}} seconds to answer</p>
+  {{/if}}
   <h2>{{question.title}}</h2>
 </header>
 <main>

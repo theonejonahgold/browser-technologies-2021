@@ -44,6 +44,7 @@ function hostWS() {
         break
       case 'open':
         renderToDOM(renderAnswer(message))
+        updateCountdown(message)
         break
       case 'answered':
         updateAnsweredAmt(message)
@@ -97,12 +98,14 @@ function renderCountdown({ question, last }) {
   return content
 }
 
-function renderAnswer({ question, participantAmount }) {
+function renderAnswer({ question, participantAmount, timeLimit }) {
   const content = queryTemplateContent('answer')
   const title = content.querySelector('[data-question-title]')
   title.textContent = question.title
   const progress = content.querySelector('[data-progress]')
   progress.textContent = `0 of ${participantAmount} participants answered`
+  const timer = content.querySelector('[data-timer]')
+  timer.textContent = `People have ${timeLimit} seconds left to answer`
   return content
 }
 
@@ -157,4 +160,16 @@ function queryTemplateContent(name) {
   const template = document.querySelector(`[data-${name}]`)
   const content = template.content.cloneNode(true)
   return content
+}
+
+function updateCountdown({ timeLimit }) {
+  let currentTime = timeLimit
+  const interval = setInterval(() => {
+    const timer = document.querySelector('[data-timer]')
+    if (!timer || currentTime === 0) {
+      clearInterval(interval)
+      return
+    }
+    timer.textContent = `People have ${--currentTime} seconds left to answer`
+  }, 1000)
 }

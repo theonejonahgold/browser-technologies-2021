@@ -2,21 +2,20 @@ window.addEventListener('load', () => {
   initAnswerInputPage()
 })
 
-initAnswerInputPage()
-
 function initAnswerInputPage() {
   const addButton = document.querySelector('[data-add-answer]')
-  console.log(addButton)
   if (!addButton) return
+  addButton.setAttribute('type', 'button')
   addButton.addEventListener('click', addAnswer)
-  const fieldset = document.querySelector('[data-answer-inputs]')
-  fieldset.classList.remove('invisible')
+  const currentInputs = document.querySelectorAll('[data-answer-inputs] input')
+  currentInputs.forEach(input =>
+    input.addEventListener('keypress', addAnswerBasedOnKeypress)
+  )
 }
 
 function addAnswer() {
   const template = document.querySelector('[data-answer-template]')
-  if (!template)
-    return console.error('Template not found')
+  if (!template) return console.error('Template not found')
 
   const answerInputLabel = template.content.cloneNode(true)
   const label = answerInputLabel.querySelector('label')
@@ -25,4 +24,12 @@ function addAnswer() {
   const input = answerInputLabel.querySelector('input')
   this.parentElement.insertBefore(answerInputLabel, this)
   input.focus()
+  input.addEventListener('keypress', addAnswerBasedOnKeypress)
+}
+
+function addAnswerBasedOnKeypress(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    addAnswer.call(document.querySelector('[data-add-answer]'))
+  }
 }

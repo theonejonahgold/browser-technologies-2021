@@ -11,6 +11,7 @@ type Question struct {
 type QuestionInput struct {
 	Title   string   `json:"title" bson:"title" form:"title"`
 	Answers []string `json:"answers" bson:"answers" form:"answer"`
+	Submit  string   `json:"submit" bson:"-" form:"submit"`
 }
 
 type Answer struct {

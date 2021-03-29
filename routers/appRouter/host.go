@@ -161,7 +161,7 @@ func startSession(c *fiber.Ctx) error {
 	}
 	stop()
 	go changeStateAfterCountdown(s)
-	return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
+	return c.Redirect(fmt.Sprintf("/app/host?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
 }
 
 func hostCountdown(c *fiber.Ctx) error {
@@ -312,11 +312,11 @@ func nextQuestion(c *fiber.Ctx) error {
 	if state != models.Finished {
 		go changeStateAfterCountdown(s)
 	}
-	return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
+	return c.Redirect(fmt.Sprintf("/app/host?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
 }
 
 func changeStateAfterCountdown(s models.Session) {
-	<-time.After(5 * time.Second)
+	<-time.After(3 * time.Second)
 	ctx, stop := createCtx()
 	if err := db.
 		Database().

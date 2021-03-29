@@ -1,10 +1,13 @@
 <noscript>
-  <meta http-equiv="refresh" content="1; url=/app/host/{{objectid session.iD}}?sessid={{sessid}}">
+  <meta http-equiv="refresh" content="1; url=/app/host?session={{objectid session.iD}}&sessid={{sessid}}">
 </noscript>
 <header>
   <h1>Answer now</h1>
   <h2>{{question.title}}</h2>
 </header>
 <main>
+  {{#if (nonZero session.questionTimer)}}
+  <p>People have {{session.questionTimer}} seconds to answer</p>
+  {{/if}}
   <p>{{amtAns}} of {{len session.participants}} participants answered</p>
 </main>

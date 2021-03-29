@@ -11,8 +11,8 @@
   {{> partials/answer-result}}
   {{/each}}
   {{#if last}}
-  <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Finish quiz</a>
+  <a class="button large" href="/app/host/next?sessid={{sessid}}">Finish quiz</a>
   {{else}}
-  <a class="button large" href="/app/host/next-question?sessid={{sessid}}">Next question</a>
+  <a class="button large" href="/app/host/next?sessid={{sessid}}">Next question</a>
   {{/if}}
 </main>

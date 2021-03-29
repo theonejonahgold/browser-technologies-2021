@@ -260,6 +260,7 @@ func joinWS(c *websocket.Conn) {
 		message.Type = results
 		message.Session = s.ID
 		message.SessID = sessID
+		message.AmtPart = len(s.Participants)
 		for i, v := range s.Questions {
 			if v.ID == s.CurrentQuestion {
 				message.Question = *v
@@ -525,6 +526,7 @@ func hostWS(c *websocket.Conn) {
 		message.Type = results
 		message.Session = s.ID
 		message.SessID = sessID
+		message.AmtPart = len(s.Participants)
 		for i, v := range s.Questions {
 			if v.ID == s.CurrentQuestion {
 				message.Question = *v
@@ -625,7 +627,9 @@ infiniteLoop:
 				log.Printf("findOne error: %v\n", err)
 				break infiniteLoop
 			}
-			go changeStateAfterCountdown(s)
+			if state != models.Finished {
+				go changeStateAfterCountdown(s)
+			}
 		default:
 			log.Printf("invalid message type provided: %v\n", recMessage.Type)
 		}
@@ -703,7 +707,6 @@ func notifyHostOnEvent(id primitive.ObjectID, c chan<- bson.Raw, ctx context.Con
 	for {
 		ok := cs.Next(ctx)
 		if !ok {
-			fmt.Println("not okay, breaking")
 			break
 		}
 		c <- cs.Current

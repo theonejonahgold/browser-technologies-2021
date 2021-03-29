@@ -147,7 +147,7 @@ func sessionPage(c *fiber.Ctx) error {
 		return c.Redirect(fmt.Sprintf("/app/quiz/%v/results?sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	}
 	if s.State != models.Creating {
-		return c.Redirect(fmt.Sprintf("/app/host/%v?sessid=%v", s.ID.Hex(), uuidSess.ID()))
+		return c.Redirect(fmt.Sprintf("/app/host?session=%v&sessid=%v", s.ID.Hex(), uuidSess.ID()))
 	}
 	return c.Render("pages/app/session/index", fiber.Map{
 		"session": s,
@@ -236,6 +236,9 @@ func saveNewQuestion(c *fiber.Ctx) error {
 		}).
 		Decode(&s); err != nil && err != mongo.ErrNoDocuments {
 		return err
+	}
+	if qi.Submit == "save" {
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", objID.Hex(), uuidSess.ID()))
 	}
 	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", objID.Hex(), q.ID.Hex(), uuidSess.ID()))
 }
@@ -382,6 +385,9 @@ func editQuestion(c *fiber.Ctx) error {
 		return err
 	}
 	stop()
+	if qi.Submit == "save" {
+		return c.Redirect(fmt.Sprintf("/app/quiz/%v?sessid=%v", objID.Hex(), uuidSess.ID()))
+	}
 	return c.Redirect(fmt.Sprintf("/app/quiz/%v/question/edit/%v?sessid=%v", objID.Hex(), qObjID.Hex(), uuidSess.ID()))
 }
 

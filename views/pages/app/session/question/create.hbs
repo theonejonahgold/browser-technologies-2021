@@ -11,15 +11,15 @@
       Title
       <input autofocus type="text" name="title">
     </label>
-    <fieldset data-answer-inputs class="invisible">
+    <fieldset data-answer-inputs>
       <legend>Answers</legend>
       <label>
         Answer 1:
         <input type="text" name="answer">
       </label>
-      <button type="button" class="large" data-add-answer>Add answer</button>
+      <button type="submit" class="large" name="submit" value="add" data-add-answer>Add answer</button>
     </fieldset>
-    <button class="large">Save</button>
+    <button type="submit" class="large" name="submit" value="save">Save</button>
   </form>
 </main>
 <template style="display: none;" data-answer-template>

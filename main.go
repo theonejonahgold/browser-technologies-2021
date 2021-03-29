@@ -79,6 +79,9 @@ func main() {
 	engine.AddFunc("owner", func(session models.Session, user models.User) bool {
 		return session.Owner == user.ID
 	})
+	engine.AddFunc("nonZero", func(num int) bool {
+		return num != 0
+	})
 	engine.AddFunc("currentQuestion", func(session models.Session) int {
 		for k, v := range session.Questions {
 			if v.ID == session.CurrentQuestion {

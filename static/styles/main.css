@@ -20,7 +20,8 @@
 }
 
 /* #region HEADER */
-body > header,
+body>header,
+[data-content]>header,
 main,
 footer {
   max-width: 40rem;
@@ -28,85 +29,104 @@ footer {
   padding: 0 1.25rem;
 }
 
-body > header,
+body>header,
+[data-content]>header,
 footer {
   padding: 1.25rem;
 }
 
-body > header {
+body>header,
+[data-content]>header {
   display: flex;
-  flex-direction: column-reverse;
+  flex-wrap: wrap;
 }
 
-body > header h1:only-child,
-body > header a + h1:last-child,
-body > header h2 {
+body>header> :nth-last-child(3),
+[data-content]>header> :nth-last-child(3),
+body>header> :nth-last-child(3)+*,
+[data-content]>header> :nth-last-child(3)+* {
+  width: 50%;
+}
+
+body>header> :nth-last-child(3),
+[data-content]>header> :nth-last-child(3),
+body>header> :nth-last-child(2),
+[data-content]>header> :nth-last-child(2) {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+body>header> :last-child,
+[data-content]>header> :last-child,
+body>header> :only-child,
+[data-content]>header> :only-child {
   font-size: 3rem;
   font-weight: bold;
   text-align: center;
+  width: 100%;
 }
 
-body > header h1:nth-last-child(2),
-body > header > :-moz-any(p, a) {
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-body > header h1:nth-last-child(2),
-body > header > :-webkit-any(p, a) {
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-body > header h1:nth-last-child(2),
-body > header > :is(p, a) {
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-body > header h1:only-child {
+[data-content]>header> :only-child,
+body>header> :only-child {
   margin: 1.5rem 0;
 }
 
-body > header a + h1:nth-last-child(2) {
+
+[data-content]>header> :nth-last-child(3)+*,
+body>header> :nth-last-child(3)+* {
   text-align: right;
 }
 
-body > header > p a,
-body > header > a {
-  grid-area: small-one;
+[data-content]>header a,
+body>header a {
   color: black;
   text-decoration: none;
 }
 
+
 @supports (display: grid) {
-  body > header {
+
+  [data-content]>header,
+  body>header {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: min-content auto;
-    grid-template-areas: "small-one small-two" "heading heading";
+    grid-template-areas: "small-one small-two""heading heading";
     grid-row-gap: 1.25rem;
     row-gap: 1.25rem;
   }
 
-  body > header h1:only-child {
+  [data-content]>header :last-child:not(:only-child),
+  body>header :last-child:not(:only-child) {
+    grid-area: heading;
+  }
+
+  [data-content]>header :nth-last-child(2),
+  body>header :nth-last-child(2),
+  [data-content]>header :nth-last-child(3),
+  body>header :nth-last-child(3) {
+    width: 100%;
+    margin: 0;
+  }
+
+  [data-content]>header> :only-child,
+  body>header> :only-child {
     grid-row: 1 / span 2;
     grid-column: 1 / span 2;
   }
 
-  body > header h1,
-  body > header h2 {
-    grid-area: heading;
-  }
-
-  body > header h1:nth-last-child(2) {
-    grid-area: small-one;
-  }
-
-  body > header a + h1:nth-last-child(2) {
+  [data-content]>header :nth-last-child(2),
+  body>header :nth-last-child(2) {
     grid-area: small-two;
   }
+
+  [data-content]>header :nth-last-child(2):first-child,
+  body>header :nth-last-child(2):first-child {
+    grid-area: small-one;
+  }
 }
+
 /* #endregion HEADER */
 
 /* #region BUTTON */
@@ -115,7 +135,9 @@ button {
   -webkit-appearance: none;
   appearance: none;
   font-weight: 500;
+  background: #d1495b;
   background: var(--red, #d1495b);
+  border: 1px solid #d1495b;
   border: 1px solid var(--red, #d1495b);
   border-radius: 0.25rem;
   cursor: pointer;
@@ -128,7 +150,9 @@ button {
 
 .button {
   text-decoration: none;
+  background: #d1495b;
   background: var(--red, #d1495b);
+  border: 1px solid #d1495b;
   border: 1px solid var(--red, #d1495b);
   border-radius: 0.25rem;
   cursor: pointer;
@@ -195,21 +219,22 @@ button {
   border-width: 2px;
 }
 
-:-webkit-any(button, .button).large + .large {
+:-webkit-any(button, .button).large+.large {
   margin-top: 2rem;
 }
 
-:-moz-any(button, .button).large + .large {
+:-moz-any(button, .button).large+.large {
   margin-top: 2rem;
 }
 
-:is(button, .button).large + .large {
+:is(button, .button).large+.large {
   margin-top: 2rem;
 }
 
-.button.large + section {
+.button.large+section {
   margin-top: 1.8rem;
 }
+
 /* #endregion BUTTON */
 
 /* #region FORMS */
@@ -252,6 +277,7 @@ label input[type="text"]:focus,
 label input[type="password"]:focus,
 label input[type="number"]:focus {
   outline: none;
+  border-color: #d1495b;
   border-color: var(--red);
   box-shadow: 0px 6px 5px -4px rgba(0, 0, 0, 0.25);
 }
@@ -265,11 +291,11 @@ label.inline input {
   width: auto;
 }
 
-label.inline + button {
+label.inline+button {
   display: inline;
 }
 
-fieldset + button {
+fieldset+button {
   margin-top: 2rem;
 }
 
@@ -289,7 +315,9 @@ input[type="radio"] {
 
 input[type="checkbox"]:checked,
 input[type="radio"]:checked {
+  border-color: #d1495b;
   border-color: var(--red);
+  background-color: #d1495b;
   background-color: var(--red);
 }
 
@@ -329,8 +357,10 @@ form[action="/app/join"] fieldset input {
   left: -1rem;
 }
 
-form[action="/app/join"] fieldset input:checked + label {
+form[action="/app/join"] fieldset input:checked+label {
+  background: #d1495b;
   background: var(--red);
+  border-color: #d1495b;
   border-color: var(--red);
   color: white;
 }
@@ -349,6 +379,7 @@ form[action="/app/join"] fieldset input:checked + label {
     place-items: center;
   }
 }
+
 /* #endregion LABELS & INPUTS */
 /* #endregion FORMS */
 
@@ -373,6 +404,7 @@ section h2 {
   font-size: 1.25rem;
   margin-bottom: 0.25rem;
 }
+
 /* #endregion SECTIONS */
 
 /* #region LIST */
@@ -406,6 +438,7 @@ ul:not(:last-of-type) {
 
 .quiz-list li a:focus {
   outline: none;
+  border-color: #edae49;
   border-color: var(--orange, #edae49);
 }
 
@@ -419,9 +452,10 @@ ul:not(:last-of-type) {
   width: max-content;
 }
 
-.quiz-list li p + p {
+.quiz-list li p+p {
   margin-left: auto;
 }
+
 /* #endregion LIST */
 
 /* #region DETAILS */
@@ -455,6 +489,7 @@ details li form[action] {
 details[open] {
   margin-bottom: 3rem;
 }
+
 /* #endregion DETAILS */
 
 /* #region POLL QUIZ */
@@ -464,11 +499,11 @@ article header {
   align-items: flex-start;
 }
 
-article header > h2 + * {
+article header>h2+* {
   margin-left: auto;
 }
 
-article header > h2 ~ *:not(:last-child) {
+article header>h2~*:not(:last-child) {
   margin-right: 1rem;
 }
 
@@ -508,4 +543,47 @@ article header form[action*="order"] button.down:before {
 .quiz-delete {
   margin-top: 2.4rem;
 }
+
 /* #ENDREGION POLL QUIZ */
+
+/* #REGION METER */
+meter {
+  height: 2rem;
+}
+
+meter::-webkit-meter-bar {
+  border-radius: 0.25rem;
+  background: none;
+  background-color: #efefef;
+  border-color: #d1495b;
+  border-color: var(--red);
+}
+
+meter::-webkit-meter-optimum-value {
+  background: none;
+  background-color: #d1495b;
+  background-color: var(--red);
+}
+
+/* #ENDREGION METER */
+
+/* #REGION RESULT */
+h2+.result {
+  margin-top: 0.5rem;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.result span {
+  flex: 0 0 25%;
+}
+
+.result meter {
+  flex: 0 0 75%;
+}
+
+/* #ENDREGION RESULT */
