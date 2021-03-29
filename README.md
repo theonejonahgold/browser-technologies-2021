@@ -35,7 +35,7 @@ Goldhoot is a quiz platform to the likes of [Kahoot](https://kahoot.com). Create
 
 ## Enhancements
 
-- [ ] Have the quiz host and join flow completely work through web sockets so it's copmletely real time.
+- [x] Have the quiz host and join flow completely work through web sockets so it's copmletely real time.
 - [x] Add new answers to a question inline instead of refreshing the page when submitting using `<template>` tags.
 - [x] Add confirmation dialog when deleting anything.
 
@@ -51,9 +51,10 @@ Goldhoot is a quiz platform to the likes of [Kahoot](https://kahoot.com). Create
 
 ## Chosen browsers
 
-- Safari
-- Firefox
-- Die ene exclusieve browser
+- Safari 14 on macOS Big Sur 11.2.3
+- Chrome 89 on macOS Big Sur 11.2.3
+- Safari 14 on iPhone with iOS 14.4.1
+- Firefox 80.1.1 on Google Pixel 5 with Android 11
 
 <!-- Add a nice poster image here at the end of the week, showing off your shiny frontend 📸 -->
 

@@ -16,7 +16,10 @@ type IsoStore struct {
 }
 
 func (s *IsoStore) Get(c *fiber.Ctx) (*session.Session, *UUIDSession, error) {
-	uuidSess, _ := s.uuidStore.Get(c)
+	uuidSess, err := s.uuidStore.Get(c)
+	if err != nil {
+		return nil, nil, err
+	}
 	cookieSess, err := s.cookieStore.Get(c)
 	if err != nil {
 		return nil, nil, err

@@ -6,6 +6,7 @@ import (
 	"bt/isosession"
 	"bt/routers/appRouter"
 	"bt/routers/userRouter"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -80,6 +81,7 @@ func main() {
 		return session.Owner == user.ID
 	})
 	engine.AddFunc("nonZero", func(num int) bool {
+		fmt.Println(num)
 		return num != 0
 	})
 	engine.AddFunc("currentQuestion", func(session models.Session) int {

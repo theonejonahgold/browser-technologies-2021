@@ -87,8 +87,6 @@ function renderAnswer({ question, sessid, timeLimit }) {
   title.textContent = question.title
   const sessionInput = content.querySelector('[data-sessid]')
   sessionInput.value = sessid
-  const timer = content.querySelector('[data-timer]')
-  timer.textContent = `${timeLimit} seconds left`
   const fieldset = content.querySelector('[data-answer-form] fieldset')
   const answerTemplate = content.querySelector('[data-answer-input]')
   question.answers.forEach(answer => {
@@ -101,6 +99,12 @@ function renderAnswer({ question, sessid, timeLimit }) {
     label.textContent = answer.title
     fieldset.appendChild(answerInput)
   })
+  const timer = content.querySelector('[data-timer]')
+  if (timeLimit == 0) {
+    timer.remove()
+    return content
+  }
+  timer.textContent = `${timeLimit} seconds left`
   return content
 }
 

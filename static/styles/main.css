@@ -548,13 +548,14 @@ article header form[action*="order"] button.down:before {
 
 /* #REGION METER */
 meter {
-  height: 2rem;
+  height: 3rem;
 }
 
 meter::-webkit-meter-bar {
   border-radius: 0.25rem;
   background: none;
-  background-color: #efefef;
+  background-color: #003d5b;
+  background-color: var(--dark-blue);
   border-color: #d1495b;
   border-color: var(--red);
 }
@@ -573,17 +574,29 @@ h2+.result {
 }
 
 .result {
-  display: flex;
-  align-items: center;
   width: 100%;
+  position: relative;
+  height: 2rem;
 }
 
 .result span {
-  flex: 0 0 25%;
+  position: absolute;
+  top: 50%;
+  line-height: 1;
+  color: white;
+  font-size: 1rem;
+}
+
+.result span:first-of-type {
+  left: 0.25rem;
+}
+
+.result span:last-of-type {
+  right: 0.25rem;
 }
 
 .result meter {
-  flex: 0 0 75%;
+  width: 100%;
 }
 
 /* #ENDREGION RESULT */

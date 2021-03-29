@@ -98,7 +98,7 @@ func join(c *fiber.Ctx) error {
 	}
 	joined := false
 	for _, v := range s.Participants {
-		if v.ID == u.ID {
+		if v.User == u.ID {
 			joined = true
 		}
 	}

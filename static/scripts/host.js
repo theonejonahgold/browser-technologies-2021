@@ -105,6 +105,10 @@ function renderAnswer({ question, participantAmount, timeLimit }) {
   const progress = content.querySelector('[data-progress]')
   progress.textContent = `0 of ${participantAmount} participants answered`
   const timer = content.querySelector('[data-timer]')
+  if (timeLimit == 0) {
+    timer.remove()
+    return content
+  }
   timer.textContent = `People have ${timeLimit} seconds left to answer`
   return content
 }

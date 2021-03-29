@@ -39,8 +39,7 @@ func (s *UUIDStore) Get(c *fiber.Ctx) (*UUIDSession, error) {
 		}
 	}
 	var sess *UUIDSession
-	var ok bool
-	sess, ok = s.Storage[id]
+	sess, ok := s.Storage[id]
 	if ok {
 		if sess.fresh {
 			sess.fresh = false
