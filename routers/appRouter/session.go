@@ -49,7 +49,7 @@ func saveSessionName(c *fiber.Ctx) error {
 		Questions:       []*models.Question{},
 		Code:            fmt.Sprintf("%v-%v", u.Username, id.Hex()[len(id.Hex())-8:]),
 		State:           models.Creating,
-		CurrentQuestion: [12]byte{},
+		CurrentQuestion: primitive.NilObjectID,
 	}); err != nil {
 		return err
 	}

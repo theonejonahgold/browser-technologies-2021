@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"reflect"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -29,7 +32,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
@@ -111,7 +113,9 @@ func main() {
 		return fmt.Sprintf("%f%%", percent)
 	})
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:        engine,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	})
 	app.Use(compress.New(compress.Config{Level: compress.LevelBestCompression}))
 	app.Use(logger.New(logger.ConfigDefault))
@@ -120,7 +124,25 @@ func main() {
 	userRouter.NewRouter(app, sessStore)
 	appRouter.NewRouter(app, sessStore)
 	app.Get("/", index)
-	log.Fatal(app.Listen(":" + port))
+
+	go func() {
+		if err := app.Listen(fmt.Sprintf(":%v", port)); err != nil {
+			log.Panic(err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	sig := <-c
+	fmt.Println(sig)
+	fmt.Println("Gracefully shutting down...")
+	if err := app.Shutdown(); err != nil {
+		log.Fatalf("error shutting down server: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		log.Fatalf("error closing db connection: %v", err)
+	}
+
 }
 
 func index(c *fiber.Ctx) error {

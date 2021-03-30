@@ -34,6 +34,11 @@ func loginPage(c *fiber.Ctx) error {
 		Username: "",
 		Password: "",
 	}
+	if strings.Contains(err, "user") {
+		if strings.Contains(err, "noexist") {
+			errs.Username = "Username doesn't exist"
+		}
+	}
 	if strings.Contains(err, "password") {
 		if strings.Contains(err, "invalid") {
 			errs.Password = "Password is invalid"
@@ -60,6 +65,9 @@ func loginUser(c *fiber.Ctx) error {
 		}).
 		Decode(&u)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return c.Redirect("/login?error=user_noexist")
+		}
 		return err
 	}
 	ok, err := argon2.VerifyEncoded([]byte(ui.Password), []byte(u.Password))

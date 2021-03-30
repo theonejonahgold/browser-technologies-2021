@@ -11,13 +11,19 @@ function initAnswerInputPage() {
   currentInputs.forEach(input =>
     input.addEventListener('keypress', addAnswerBasedOnKeypress)
   )
+  const nameInput = document.querySelector('input[name="title"]')
+  nameInput.addEventListener('keypress', addAnswerBasedOnKeypress)
 }
 
 function addAnswer() {
+  const lastInput = document.querySelector(
+    '[data-answer-inputs] label:last-of-type input'
+  )
+  if (lastInput.value === '') return void lastInput.focus()
   const template = document.querySelector('[data-answer-template]')
   if (!template) return console.error('Template not found')
-
-  const answerInputLabel = template.content.cloneNode(true)
+  const content = 'content' in template ? template.content : template
+  const answerInputLabel = content.cloneNode(true)
   const label = answerInputLabel.querySelector('label')
   const index = document.querySelectorAll('[data-answer-inputs] input').length
   label.childNodes[0].nodeValue += ` ${index + 1}:`

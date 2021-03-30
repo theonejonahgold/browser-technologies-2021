@@ -10,10 +10,10 @@
         <input required type="text" name="session">
       </label>
       <button>Join</button>
+      {{#if errors.session}}
+      <p class="error">{{errors.session}}</p>
+      {{/if}}
     </form>
-    {{#if errors.session}}
-    <p>{{errors.session}}</p>
-    {{/if}}
   </section>
 
   <section>

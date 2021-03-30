@@ -16,8 +16,8 @@
     <fieldset>
       <legend>Possible answers</legend>
       {{#each question.answers as |answer|}}
-      <input type="radio" name="answer" value="{{objectid answer.iD}}" id="{{answer.title}}">
-      <label for="{{answer.title}}">
+      <input type="radio" name="answer" value="{{objectid answer.iD}}" id="{{objectid answer.iD}}">
+      <label for="{{objectid answer.iD}}">
         {{answer.title}}
       </label>
       {{/each}}

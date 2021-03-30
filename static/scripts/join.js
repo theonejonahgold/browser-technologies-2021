@@ -1,8 +1,10 @@
 /*global splitQuery*/
 
 window.addEventListener('load', () => {
-  prepareContent()
-  joinWS()
+  if ('WebSocket' in window) {
+    prepareContent()
+    joinWS()
+  }
 })
 
 function prepareContent() {
