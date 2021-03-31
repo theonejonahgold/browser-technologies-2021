@@ -2,7 +2,7 @@
 
 ![Badge showing that the project is MIT licensed](https://img.shields.io/github/license/theonejonahgold/goldhoot?style=flat-square) ![Badge showing amount of open issues](https://img.shields.io/github/issues/theonejonahgold/goldhoot?style=flat-square)
 
-![Screenshot of a webpage showing a question with two available answers to send in](docs/dsafari/janswer1.png)
+![Screenshot of a webpage showing a question with two available answers to send in](docs/screenshots/dsafari/janswer1.png)
 
 [Link to website](https://browser-tech-goldhoot.herokuapp.com/)
 
