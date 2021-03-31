@@ -133,7 +133,7 @@ function renderResult({ question, participantAmount, last }) {
   const main = content.querySelector('main')
   question.answers.forEach(answer => {
     const answerResult =
-      'template' in document.createElement('template')
+      'content' in document.createElement('template')
         ? answerTemplate.content.cloneNode(true)
         : answerTemplate.cloneNode(true)
     const answerSpan = answerResult.querySelector('label > span')
