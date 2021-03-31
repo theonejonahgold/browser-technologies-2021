@@ -11,10 +11,24 @@ Goldhoot is an app where you can create poll quizes. People can join based on qu
 # Index
 
 - [Features](#features)
+- [Installing the project](#installing-the-project)
 - [Enhancements](#enhancements)
 - [Wireflow](#wireflow)
 - [Progressive enhancement](#progressive-enhancement)
 - [Testing features](#testing-features)
+
+
+# Installing the project
+
+You need to have both [NodeJS](https://nodejs.org) and [Go](https://golang.org) installed and set up to get this project up and going.
+
+```sh
+git clone https://github.com/theonejonahgold/goldhoot.git
+cd goldhoot
+npm install
+go get
+go run main.go
+```
 
 # Features
 
