@@ -6,7 +6,7 @@
 
 [Link to website](https://browser-tech-goldhoot.herokuapp.com/)
 
-Goldhoot is an app where you can create poll quizes. People can join based on quiz codes and answer the question in the order you want to present them.
+Goldhoot is an app where you can create poll quizes. People can join based on quiz codes and answer the question in the order you want to present them. You can see the results after a question has been answered, or when the quiz has fully ended, giving a nice overview of all questions with their corresponding answers.
 
 # Index
 
