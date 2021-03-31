@@ -32,6 +32,16 @@ p.large {
   margin: 1em 0;
 }
 
+main h2 {
+  font-size: 1.25rem;
+}
+
+@media screen and (min-width:40rem) {
+  main h2 {
+    font-size: 1.5rem;
+  }
+}
+
 /* #region HEADER */
 body>header,
 [data-content]>header,
@@ -65,7 +75,7 @@ body>header> :nth-last-child(3),
 [data-content]>header> :nth-last-child(3),
 body>header> :nth-last-child(2),
 [data-content]>header> :nth-last-child(2) {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 500;
   margin-bottom: 1.25rem;
 }
@@ -74,7 +84,7 @@ body>header> :last-child,
 [data-content]>header> :last-child,
 body>header> :only-child,
 [data-content]>header> :only-child {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
   text-align: center;
   width: 100%;
@@ -84,7 +94,6 @@ body>header> :only-child,
 body>header> :only-child {
   margin: 1.5rem 0;
 }
-
 
 [data-content]>header> :nth-last-child(3)+*,
 body>header> :nth-last-child(3)+* {
@@ -97,6 +106,22 @@ body>header a {
   text-decoration: none;
 }
 
+@media screen and (min-width: 40rem) {
+
+  body>header> :nth-last-child(3),
+  [data-content]>header> :nth-last-child(3),
+  body>header> :nth-last-child(2),
+  [data-content]>header> :nth-last-child(2) {
+    font-size: 1.25rem;
+  }
+
+  body>header> :last-child,
+  [data-content]>header> :last-child,
+  body>header> :only-child,
+  [data-content]>header> :only-child {
+    font-size: 3rem;
+  }
+}
 
 @supports (display: grid) {
 
@@ -394,6 +419,13 @@ form[action="/app/join"] fieldset input {
   left: -1rem;
 }
 
+form[action="/app/join"] fieldset input:focus+label,
+form[action="/app/join"] fieldset+label:focus {
+  border-color: #d1495b;
+  border-color: var(--red);
+  border-width: 2px;
+}
+
 form[action="/app/join"] fieldset input:checked+label {
   background: #d1495b;
   background: var(--red);
@@ -677,13 +709,28 @@ article header form[action*="order"] button.down:before {
 
 /* #region RESULT */
 h2+.result {
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+@media screen and (min-width: 40rem) {
+
+  h2+.result {
+    margin-top: 0.5rem;
+  }
 }
 
 .result {
   width: 100%;
   position: relative;
   height: 2rem;
+  margin: 0.5rem 0;
+}
+
+@media screen and (min-width: 40rem) {
+
+  .result {
+    margin: 1rem 0;
+  }
 }
 
 .result>span {
