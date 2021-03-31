@@ -2,6 +2,8 @@
 
 ![Badge showing that the project is MIT licensed](https://img.shields.io/github/license/theonejonahgold/goldhoot?style=flat-square) ![Badge showing amount of open issues](https://img.shields.io/github/issues/theonejonahgold/goldhoot?style=flat-square)
 
+![Screenshot of a webpage showing a question with two available answers to send in](docs/dsafari/janswer1.png)
+
 [Link to website](https://browser-tech-goldhoot.herokuapp.com/)
 
 Goldhoot is an app where you can create poll quizes. People can join based on quiz codes and answer the question in the order you want to present them.
@@ -11,6 +13,7 @@ Goldhoot is an app where you can create poll quizes. People can join based on qu
 - [Features](#features)
 - [Enhancements](#enhancements)
 - [Wireflow](#wireflow)
+- [Progressive enhancement](#progressive-enhancement)
 - [Testing features](#testing-features)
 
 # Features
@@ -36,9 +39,15 @@ Goldhoot is an app where you can create poll quizes. People can join based on qu
 
 ## Wishlist
 
-- Cancelling the publication of a poll quiz.
+- Cancelling the opening of a poll quiz.
 
-# The three layers of progressive enhancement
+# Wireflow
+
+![Picture of wireflow, showing the most desired interaction with my app](docs/wireflow.png)
+
+[PDF version](docs/wireflow.pdf)
+
+# Progressive enhancement
 
 1. All basic content is displayed in semantic HTML. The quiz flow is kept up-to-date with frequent page refreshes, which might be a bit jarring, but all moments where user input is required are not automatically refreshed to make the experience more bearable.
 2. With CSS I bring more hierarchy to the content. The content is usable by itself, but the CSS just gives the content the extra push it needs to be fully usable.
@@ -46,19 +55,13 @@ Goldhoot is an app where you can create poll quizes. People can join based on qu
 
 A list of all the enhancements I've put in place are found below.
 
-## List of all enhancements
+## List of all enhancements put in place.
 
 - CSS Grid layouts, built upon working flexbox layouts.
 - A proper countdown with CSS animations, instead of the numbers "3", "2" and "1" statically displayed on the screen.
-- Deletion confirmations with `confirm()`.
-- "Add answer" creating a new answer input instead of submitting the form and thus refreshing the page.
+- Deletion confirmations with the `confirm()` function.
+- When creating a question, having the "Add answer" add a new answer input instead of submitting the form and thus refreshing the page. Also making this possible by pressing enter while typing inside an input.
 - Web Sockets when hosting or joining a quiz, streamlining the experience and making it snappier for all parties.
-
-# Wireflow
-
-![Picture of wireflow](docs/wireflow.png)
-
-[PDF version](docs/wireflow.pdf)
 
 # Testing features
 
@@ -96,6 +99,7 @@ If you don't want to read all my observations below, here are some key takeaways
 - The core functionality works, no matter what you try to disable.
 - More focus on proper mobile-first design would've prevented small mistakes like font-sizing and spacing between elements on smaller screens.
 - Adding `tabindex="0"` to buttons would've added a lot of accessibility improvements to Safari.
+- Shift+Enter apparently opens the requested page in a new window, rendering my keyboard shortcut for saving a new question useless.
 
 ## Adding questions and answers to a quiz
 
