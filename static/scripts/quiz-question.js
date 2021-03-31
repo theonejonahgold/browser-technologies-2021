@@ -22,8 +22,10 @@ function addAnswer() {
   if (lastInput.value === '') return void lastInput.focus()
   const template = document.querySelector('[data-answer-template]')
   if (!template) return console.error('Template not found')
-  const content = 'content' in template ? template.content : template
-  const answerInputLabel = content.cloneNode(true)
+  const answerInputLabel =
+    'content' in document.createElement('template')
+      ? template.content.cloneNode(true)
+      : template.cloneNode(true)
   const label = answerInputLabel.querySelector('label')
   const index = document.querySelectorAll('[data-answer-inputs] input').length
   label.childNodes[0].nodeValue += ` ${index + 1}:`

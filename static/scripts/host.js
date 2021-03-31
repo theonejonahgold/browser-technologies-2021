@@ -133,7 +133,10 @@ function renderResult({ question, participantAmount, last }) {
   const answerTemplate = content.querySelector('[data-answer-result]')
   const main = content.querySelector('main')
   question.answers.forEach(answer => {
-    const answerResult = answerTemplate.content.cloneNode(true)
+    const answerResult =
+      'content' in document.createElement('template')
+        ? answerTemplate.content.cloneNode(true)
+        : answerTemplate.cloneNode(true)
     const answerSpan = answerResult.querySelector('label > span')
     const amountSpan = answerResult.querySelector('label > span > span')
     answerSpan.childNodes[0].nodeValue = answerSpan.childNodes[0].nodeValue.replace(
@@ -166,7 +169,10 @@ function renderToDOM(node) {
 
 function queryTemplateContent(name) {
   const template = document.querySelector(`[data-${name}]`)
-  const content = template.content.cloneNode(true)
+  const content =
+    'content' in document.createElement('template')
+      ? template.content.cloneNode(true)
+      : template.cloneNode(true)
   return content
 }
 
